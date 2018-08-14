@@ -9,7 +9,7 @@ public class History {
 
     private Integer traderid;
 
-    private Integer orderid;
+    private String symbol;
 
     private String type;
 
@@ -49,13 +49,7 @@ public class History {
         this.traderid = traderid;
     }
 
-    public Integer getOrderid() {
-        return orderid;
-    }
 
-    public void setOrderid(Integer orderid) {
-        this.orderid = orderid;
-    }
 
     public String getType() {
         return type;
@@ -79,6 +73,14 @@ public class History {
 
     public void setPrice(Double price) {
         this.price = price;
+    }
+
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public void setSymbol(String symbol) {
+        this.symbol = symbol;
     }
 
     public String getStrategy() {
