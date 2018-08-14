@@ -71,7 +71,7 @@ public class OrderbookController {
      *
      */
     @RequestMapping("submitOrder")
-    public void slectStragey(Orderbook orderbook){
+    public void selectStrategy(Orderbook orderbook){
         orderbookService.processOrder(orderbook);
     }
 }
