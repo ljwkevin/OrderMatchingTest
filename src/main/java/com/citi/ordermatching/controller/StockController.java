@@ -1,6 +1,7 @@
 package com.citi.ordermatching.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.citi.ordermatching.domain.OrderStock;
 import com.citi.ordermatching.domain.Orderbook;
 import com.citi.ordermatching.domain.Stock;
 import com.citi.ordermatching.service.OrderbookService;
@@ -97,10 +98,54 @@ public class StockController {
     public String findOrderbook(@PathParam("symbol")String symbol){
         List<Orderbook> bidlist=orderbookService.findBidBySymbol(symbol);
         List<Orderbook> askList=orderbookService.findAskBySymbol(symbol);
+        List<OrderStock> orderStocks=new ArrayList<>();
         Map map=new HashMap();
         map.put("bidList",bidlist);
         map.put("askList",askList);
-        String jsonResult=JSON.toJSONString(map);
+
+        int a=askList.size();
+        int b=bidlist.size();
+        if(a>b){
+            for(int i=0;i<a;i++){
+                OrderStock orderStock=new OrderStock();
+                orderStock.setAsk(String.valueOf(askList.get(i).getPrice()));
+                orderStock.setAskSize(String.valueOf(askList.get(i).getSize()));
+
+                if(i<b){
+                    orderStock.setBidSize(String.valueOf(bidlist.get(i).getSize()));
+                    orderStock.setBid(String.valueOf(bidlist.get(i).getPrice()));
+                }else {
+                    orderStock.setBidSize("");
+                    orderStock.setBid("");
+                }
+
+               orderStocks.add(orderStock);
+            }
+        }else {
+
+
+
+            for(int i=0;i<b;i++){
+                OrderStock orderStock=new OrderStock();
+
+                orderStock.setBid(String.valueOf(bidlist.get(i).getPrice()));
+                orderStock.setBidSize(String.valueOf(bidlist.get(i).getSize()));
+
+
+
+                if(i<a){
+                    orderStock.setAskSize(String.valueOf(askList.get(i).getSize()));
+                    orderStock.setAsk(String.valueOf(askList.get(i).getPrice()));
+                }else {
+                    orderStock.setAskSize("");
+                    orderStock.setAsk("");
+                }
+
+                orderStocks.add(orderStock);
+            }
+
+        }
+        String jsonResult=JSON.toJSONString(orderStocks);
         return jsonResult;
     }
 
