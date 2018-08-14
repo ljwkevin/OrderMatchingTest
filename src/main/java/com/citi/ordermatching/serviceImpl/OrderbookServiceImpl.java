@@ -1,5 +1,6 @@
 package com.citi.ordermatching.serviceImpl;
 
+import com.citi.ordermatching.dao.DealRecordMapper;
 import com.citi.ordermatching.enums.OrderStatus;
 import com.citi.ordermatching.enums.OrderType;
 import com.citi.ordermatching.enums.Strategy;
@@ -21,6 +22,8 @@ public class OrderbookServiceImpl implements OrderbookService {
 
     @Autowired
     private OrderbookMapper orderbookMapper;
+    @Autowired
+    private DealRecordMapper dealRecordMapper;
 
     @Override
     public List<Orderbook> findBidBySymbol(String symbol) {
@@ -60,6 +63,7 @@ public class OrderbookServiceImpl implements OrderbookService {
     public void generateDealMessage(Date dealTime, double dealPrice, int dealSize, int bidOrderId, int askOrderId){
         DealRecord dr = new DealRecord(dealTime, dealPrice, dealSize, bidOrderId, askOrderId);
         //update the database Table "dealrecord"
+        dealRecordMapper.insert(dr);
     }
     /**
      * Market Order, NO "FOK"
