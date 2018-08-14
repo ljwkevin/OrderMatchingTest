@@ -86,6 +86,7 @@ public class OrderbookServiceImpl implements OrderbookService {
                 generateDealMessage(new Date(), dealPrice, dealSize, bestBid.getId(), orderbook.getId());
                 bestBid.setStatus(OrderStatus.FINISHED.toString());
                 orderbook.setStatus(OrderStatus.FINISHED.toString());
+                bidList.get(0).setSize(bidList.get(0).getSize() - dealSize);
             }
             else if(bestBid.getSize() < orderbook.getSize()){
                 int size = orderbook.getSize();
@@ -113,6 +114,7 @@ public class OrderbookServiceImpl implements OrderbookService {
                         generateDealMessage(new Date(), dealPrice, dealSize, bestBid.getId(), orderbook.getId());
                         bidList.get(i).setStatus(OrderStatus.FINISHED.toString());
                         orderbook.setStatus(OrderStatus.FINISHED.toString());
+                        bidList.get(i).setSize(bidList.get(i).getSize() - dealSize);
                         size = 0;
                         i++;
                     }
@@ -123,6 +125,7 @@ public class OrderbookServiceImpl implements OrderbookService {
                 dealSize = orderbook.getSize();
                 generateDealMessage(new Date(), dealPrice, dealSize, bestBid.getId(), orderbook.getId());
                 orderbook.setStatus(OrderStatus.FINISHED.toString());
+                bidList.get(0).setSize(bidList.get(0).getSize() - dealSize);
             }
         }else if(orderbook.getType().equals(OrderType.BID)){
             //
