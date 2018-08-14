@@ -97,12 +97,14 @@ public class OrderbookServiceImpl implements OrderbookService {
                         generateDealMessage(new Date(), dealPrice, dealSize, bidList.get(i).getId(), orderbook.getId());
                         bidList.get(i).setStatus(OrderStatus.FINISHED.toString());
                         size = size - bidList.get(i).getSize();
+                        bidList.get(i).setSize(bidList.get(i).getSize() - dealSize);
                         i++;
                     }else if(size<bidList.get(i).getSize()){
                         dealPrice = bidList.get(i).getPrice();
                         dealSize = size;
                         generateDealMessage(new Date(), dealPrice, dealSize, bidList.get(i).getId(), orderbook.getId());
                         orderbook.setStatus(OrderStatus.FINISHED.toString());
+                        bidList.get(i).setSize(bidList.get(i).getSize() - dealSize);
                         size = 0;
                         i++;
                     }else {
