@@ -5,40 +5,40 @@ package com.citi.ordermatching.domain;
  */
 public class OrderStock {
 
-    private double bid;
-    private double ask;
-    private int bidSize;
-    private int askSize;
+    private String bid;
+    private String ask;
+    private String bidSize;
+    private String askSize;
 
-    public double getBid() {
+    public String getBid() {
         return bid;
     }
 
-    public void setBid(double bid) {
+    public void setBid(String bid) {
         this.bid = bid;
     }
 
-    public double getAsk() {
+    public String getAsk() {
         return ask;
     }
 
-    public void setAsk(double ask) {
+    public void setAsk(String ask) {
         this.ask = ask;
     }
 
-    public int getBidSize() {
+    public String getBidSize() {
         return bidSize;
     }
 
-    public void setBidSize(int bidSize) {
+    public void setBidSize(String bidSize) {
         this.bidSize = bidSize;
     }
 
-    public int getAskSize() {
+    public String getAskSize() {
         return askSize;
     }
 
-    public void setAskSize(int askSize) {
+    public void setAskSize(String askSize) {
         this.askSize = askSize;
     }
 }
