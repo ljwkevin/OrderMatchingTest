@@ -2,6 +2,7 @@ package com.citi.ordermatching.controller;
 
 import com.citi.ordermatching.domain.DealRecord;
 import com.citi.ordermatching.domain.Orderbook;
+import com.citi.ordermatching.enums.OrderStatus;
 import com.citi.ordermatching.service.OrderbookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -73,5 +74,11 @@ public class OrderbookController {
     @RequestMapping("submitOrder")
     public void selectStrategy(Orderbook orderbook){
         orderbookService.processOrder(orderbook);
+    }
+
+    @RequestMapping("cancel")
+    public void cancelOrder(int orderId){
+        Orderbook orderbook = orderbookService.findById(orderId);
+        orderbookService.cancelOrder(orderbook);
     }
 }
