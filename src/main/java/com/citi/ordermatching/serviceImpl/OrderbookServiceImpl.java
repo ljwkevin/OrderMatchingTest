@@ -49,15 +49,32 @@ public class OrderbookServiceImpl implements OrderbookService {
         return false;
     }
 
+    /**
+     * ZMZ
+     * @param orderbook
+     */
     @Override
     public void processOrder(Orderbook orderbook){
         if(orderbook.getStrategy().equals(Strategy.Matching)){
 
         }else if(orderbook.getStrategy().equals(Strategy.MKT)){
             processMKT(orderbook);
+        }else if(orderbook.getStrategy().equals(Strategy.LMT)){
+            processLMT(orderbook);
         }else {
 
         }
+    }
+
+    @Override
+    public Orderbook findById(int orderId) {
+        return orderbookMapper.selectByPrimaryKey(orderId);
+    }
+
+    @Override
+    public void cancelOrder(Orderbook orderbook) {
+        orderbook.setStatus(OrderStatus.CANCELLED.toString());
+        orderbookMapper.updateByPrimaryKey(orderbook);
     }
 
     public void generateDealMessage(Date dealTime, double dealPrice, int dealSize, int bidOrderId, int askOrderId){
@@ -65,9 +82,6 @@ public class OrderbookServiceImpl implements OrderbookService {
         //update the database Table "dealrecord"
         dealRecordMapper.insert(dr);
     }
-    /**
-     * Market Order, NO "FOK"
-     */
 
     /**
      * Market Order, NO "FOK"
@@ -87,6 +101,7 @@ public class OrderbookServiceImpl implements OrderbookService {
                 bestBid.setStatus(OrderStatus.FINISHED.toString());
                 orderbook.setStatus(OrderStatus.FINISHED.toString());
                 bidList.get(0).setSize(bidList.get(0).getSize() - dealSize);
+                orderbookMapper.updateByPrimaryKey(bidList.get(0));
             }
             else if(bestBid.getSize() < orderbook.getSize()){
                 int size = orderbook.getSize();
@@ -99,6 +114,7 @@ public class OrderbookServiceImpl implements OrderbookService {
                         bidList.get(i).setStatus(OrderStatus.FINISHED.toString());
                         size = size - bidList.get(i).getSize();
                         bidList.get(i).setSize(bidList.get(i).getSize() - dealSize);
+                        orderbookMapper.updateByPrimaryKey(bidList.get(i));
                         i++;
                     }else if(size<bidList.get(i).getSize()){
                         dealPrice = bidList.get(i).getPrice();
@@ -106,6 +122,7 @@ public class OrderbookServiceImpl implements OrderbookService {
                         generateDealMessage(new Date(), dealPrice, dealSize, bidList.get(i).getId(), orderbook.getId());
                         orderbook.setStatus(OrderStatus.FINISHED.toString());
                         bidList.get(i).setSize(bidList.get(i).getSize() - dealSize);
+                        orderbookMapper.updateByPrimaryKey(bidList.get(i));
                         size = 0;
                         i++;
                     }else {
@@ -115,10 +132,10 @@ public class OrderbookServiceImpl implements OrderbookService {
                         bidList.get(i).setStatus(OrderStatus.FINISHED.toString());
                         orderbook.setStatus(OrderStatus.FINISHED.toString());
                         bidList.get(i).setSize(bidList.get(i).getSize() - dealSize);
+                        orderbookMapper.updateByPrimaryKey(bidList.get(i));
                         size = 0;
                         i++;
                     }
-
                 }
             }else {
                 dealPrice = bestBid.getPrice();
@@ -126,6 +143,7 @@ public class OrderbookServiceImpl implements OrderbookService {
                 generateDealMessage(new Date(), dealPrice, dealSize, bestBid.getId(), orderbook.getId());
                 orderbook.setStatus(OrderStatus.FINISHED.toString());
                 bidList.get(0).setSize(bidList.get(0).getSize() - dealSize);
+                orderbookMapper.updateByPrimaryKey(bidList.get(0));
             }
         }else if(orderbook.getType().equals(OrderType.BID)){
             //
@@ -137,6 +155,8 @@ public class OrderbookServiceImpl implements OrderbookService {
                 generateDealMessage(new Date(), dealPrice, dealSize, bestAsk.getId(), orderbook.getId());
                 bestAsk.setStatus(OrderStatus.FINISHED.toString());
                 orderbook.setStatus(OrderStatus.FINISHED.toString());
+                askList.get(0).setSize(askList.get(0).getSize() - dealSize);
+                orderbookMapper.updateByPrimaryKey(askList.get(0));
             }
             else if(bestAsk.getSize() < orderbook.getSize()){
                 int size = orderbook.getSize();
@@ -148,6 +168,8 @@ public class OrderbookServiceImpl implements OrderbookService {
                         generateDealMessage(new Date(), dealPrice, dealSize, askList.get(i).getId(), orderbook.getId());
                         askList.get(i).setStatus(OrderStatus.FINISHED.toString());
                         size = size - askList.get(i).getSize();
+                        askList.get(i).setSize(askList.get(i).getSize() - dealSize);
+                        orderbookMapper.updateByPrimaryKey(askList.get(i));
                         i++;
                     }else if(size<askList.get(i).getSize()){
                         dealPrice = askList.get(i).getPrice();
@@ -155,6 +177,8 @@ public class OrderbookServiceImpl implements OrderbookService {
                         generateDealMessage(new Date(), dealPrice, dealSize, askList.get(i).getId(), orderbook.getId());
                         orderbook.setStatus(OrderStatus.FINISHED.toString());
                         size = 0;
+                        askList.get(i).setSize(askList.get(i).getSize() - dealSize);
+                        orderbookMapper.updateByPrimaryKey(askList.get(i));
                         i++;
                     }else {
                         dealPrice = askList.get(i).getPrice();
@@ -163,19 +187,30 @@ public class OrderbookServiceImpl implements OrderbookService {
                         askList.get(i).setStatus(OrderStatus.FINISHED.toString());
                         orderbook.setStatus(OrderStatus.FINISHED.toString());
                         size = 0;
+                        askList.get(i).setSize(askList.get(i).getSize() - dealSize);
+                        orderbookMapper.updateByPrimaryKey(askList.get(i));
                         i++;
                     }
 
                 }
-            }else {
+            } else {
                 dealPrice = bestAsk.getPrice();
                 dealSize = orderbook.getSize();
                 generateDealMessage(new Date(), dealPrice, dealSize, bestAsk.getId(), orderbook.getId());
                 orderbook.setStatus(OrderStatus.FINISHED.toString());
+                askList.get(0).setSize(askList.get(0).getSize() - dealSize);
+                orderbookMapper.updateByPrimaryKey(askList.get(0));
             }
 
         }
         return false;
     }
 
+    /**
+     * Limit Order
+     * @param orderbook
+     */
+    private void processLMT(Orderbook orderbook) {
+
+    }
 }
