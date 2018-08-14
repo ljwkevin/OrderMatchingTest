@@ -1,12 +1,15 @@
 package com.citi.ordermatching.serviceImpl;
 
 import com.citi.ordermatching.dao.DealRecordMapper;
+import com.citi.ordermatching.dao.HistoryMapper;
+import com.citi.ordermatching.domain.History;
 import com.citi.ordermatching.enums.OrderStatus;
 import com.citi.ordermatching.enums.OrderType;
 import com.citi.ordermatching.enums.Strategy;
 import com.citi.ordermatching.dao.OrderbookMapper;
 import com.citi.ordermatching.domain.DealRecord;
 import com.citi.ordermatching.domain.Orderbook;
+import com.citi.ordermatching.service.HistoryService;
 import com.citi.ordermatching.service.OrderbookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +27,8 @@ public class OrderbookServiceImpl implements OrderbookService {
     private OrderbookMapper orderbookMapper;
     @Autowired
     private DealRecordMapper dealRecordMapper;
+    @Autowired
+    private HistoryMapper historyMapper;
 
     @Override
     public List<Orderbook> findBidBySymbol(String symbol) {
@@ -57,7 +62,7 @@ public class OrderbookServiceImpl implements OrderbookService {
     public void processOrder(Orderbook orderbook){
         if(orderbook.getStrategy().equals(Strategy.Matching)){
 
-        }else if(orderbook.getStrategy().equals(Strategy.MKT)){
+        }else if(orderbook.getStrategy().equals(Strategy.MKT.toString())){
             processMKT(orderbook);
         }else if(orderbook.getStrategy().equals(Strategy.LMT)){
             processLMT(orderbook);
@@ -78,9 +83,14 @@ public class OrderbookServiceImpl implements OrderbookService {
     }
 
     public void generateDealMessage(Date dealTime, double dealPrice, int dealSize, int bidOrderId, int askOrderId){
-        DealRecord dr = new DealRecord(dealTime, dealPrice, dealSize, bidOrderId, askOrderId);
+        DealRecord dr = new DealRecord();
         //update the database Table "dealrecord"
-        dealRecordMapper.insert(dr);
+        dr.setDealtime(dealTime);
+        dr.setDealprice(dealPrice);
+        dr.setDealsize(dealSize);
+        dr.setDealtime(dealTime);
+        dr.setBidorderid(bidOrderId);
+        dealRecordMapper.insertSelective(dr);
     }
 
     /**
@@ -92,14 +102,15 @@ public class OrderbookServiceImpl implements OrderbookService {
         Date dealTime;
         double dealPrice;
         int dealSize;
-        if(orderbook.getType().equals(OrderType.ASK)){
+/*        History history;*/
+        if(orderbook.getType().equals(OrderType.ASK.toString())){
             //
             List<Orderbook> bidList=findBidBySymbol(orderbook.getSymbol());
             Orderbook bestBid = bidList.get(0);
             if(bestBid.getSize() == orderbook.getSize()){
                 dealPrice = bestBid.getPrice();
                 dealSize = bestBid.getSize();
-                generateDealMessage(new Date(), dealPrice, dealSize, bestBid.getId(), orderbook.getId());
+                generateDealMessage(new Date(), dealPrice, dealSize, bestBid.getId(), 1);
                 bestBid.setStatus(OrderStatus.FINISHED.toString());
                 orderbook.setStatus(OrderStatus.FINISHED.toString());
                 bidList.get(0).setSize(bidList.get(0).getSize() - dealSize);
@@ -147,14 +158,14 @@ public class OrderbookServiceImpl implements OrderbookService {
                 bidList.get(0).setSize(bidList.get(0).getSize() - dealSize);
                 orderbookMapper.updateByPrimaryKey(bidList.get(0));
             }
-        }else if(orderbook.getType().equals(OrderType.BID)){
+        }else if(orderbook.getType().equals(OrderType.BID.toString())){
             //
             List<Orderbook> askList=findAskBySymbol(orderbook.getSymbol());
             Orderbook bestAsk = askList.get(0);
             if(bestAsk.getSize() == orderbook.getSize()){
                 dealPrice = bestAsk.getPrice();
                 dealSize = bestAsk.getSize();
-                generateDealMessage(new Date(), dealPrice, dealSize, bestAsk.getId(), orderbook.getId());
+                generateDealMessage(new Date(), dealPrice, dealSize, bestAsk.getId(), 1);
                 bestAsk.setStatus(OrderStatus.FINISHED.toString());
                 orderbook.setStatus(OrderStatus.FINISHED.toString());
                 askList.get(0).setSize(askList.get(0).getSize() - dealSize);
@@ -167,7 +178,7 @@ public class OrderbookServiceImpl implements OrderbookService {
                     if(size>askList.get(i).getSize()){
                         dealPrice = askList.get(i).getPrice();
                         dealSize = askList.get(i).getSize();
-                        generateDealMessage(new Date(), dealPrice, dealSize, askList.get(i).getId(), orderbook.getId());
+                        generateDealMessage(new Date(), dealPrice, dealSize, askList.get(i).getId(),1);
                         askList.get(i).setStatus(OrderStatus.FINISHED.toString());
                         size = size - askList.get(i).getSize();
                         askList.get(i).setSize(askList.get(i).getSize() - dealSize);
@@ -176,7 +187,7 @@ public class OrderbookServiceImpl implements OrderbookService {
                     }else if(size<askList.get(i).getSize()){
                         dealPrice = askList.get(i).getPrice();
                         dealSize = size;
-                        generateDealMessage(new Date(), dealPrice, dealSize, askList.get(i).getId(), orderbook.getId());
+                        generateDealMessage(new Date(), dealPrice, dealSize, askList.get(i).getId(), 1);
                         orderbook.setStatus(OrderStatus.FINISHED.toString());
                         size = 0;
                         askList.get(i).setSize(askList.get(i).getSize() - dealSize);
@@ -205,6 +216,7 @@ public class OrderbookServiceImpl implements OrderbookService {
             }
 
         }
+/*        historyMapper.insertSelective(history);*/
         return false;
     }
 
