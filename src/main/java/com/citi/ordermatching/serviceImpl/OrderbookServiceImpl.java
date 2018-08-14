@@ -12,6 +12,7 @@ import com.citi.ordermatching.domain.Orderbook;
 import com.citi.ordermatching.service.HistoryService;
 import com.citi.ordermatching.service.OrderbookService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -55,7 +56,6 @@ public class OrderbookServiceImpl implements OrderbookService {
     }
 
     /**
-     * ZMZ
      * @param orderbook
      */
     @Override
@@ -98,6 +98,7 @@ public class OrderbookServiceImpl implements OrderbookService {
      * @param orderbook
      * @return
      */
+    @Override
     public boolean processMKT(Orderbook orderbook){
         Date dealTime;
         double dealPrice;
@@ -230,7 +231,8 @@ public class OrderbookServiceImpl implements OrderbookService {
      * Limit Order
      * @param orderbook
      */
-    private void processLMT(Orderbook orderbook) {
+    @Override
+    public void processLMT(Orderbook orderbook) {
 
         orderbookMapper.insertSelective(orderbook);
 
@@ -379,5 +381,86 @@ public class OrderbookServiceImpl implements OrderbookService {
         history.setStrategy(Strategy.LMT.toString());
         historyMapper.insertSelective(history);
 
+    }
+
+    /**
+     * Matching Order
+     * @param orderbook
+     */
+    @Override
+    public void processMatching(Orderbook orderbook) {
+        History history = new History();
+        history.setCommittime(new Date());
+        history.setSize(orderbook.getSize());
+        history.setStatus(OrderStatus.WAITING.toString());
+        history.setPrice(orderbook.getPrice());
+        history.setTraderid(orderbook.getTraderid());
+        history.setType(orderbook.getType());
+        history.setSymbol(orderbook.getSymbol());
+        history.setStrategy(Strategy.Matching.toString());
+        int i = orderbookMapper.insertSelective(orderbook);
+        int j = historyMapper.insertSelective(history);
+        if(i > 0 && j > 0){
+            match(orderbook.getSymbol(), history.getId());
+        }
+    }
+
+
+    public boolean checkMatch(String symbol){
+        List<Orderbook> bidList=findBidBySymbol(symbol);
+        List<Orderbook> askList=findAskBySymbol(symbol);
+        double bid=bidList.get(0).getPrice();
+        double ask=askList.get(0).getPrice();
+
+        if(bid-ask<0.000001){
+
+            return true;
+        }else{
+            return false;
+        }
+
+    }
+
+    public void match(String symbol, int historyId){
+        List<Orderbook> bidList=findBidBySymbol(symbol);
+        List<Orderbook> askList=findAskBySymbol(symbol);
+        boolean flag=checkMatch(symbol);
+        if(flag){
+
+            int dealSize;
+            if(bidList.get(0).getSize() > askList.get(0).getSize()){
+                dealSize = askList.get(0).getSize();
+                bidList.get(0).setSize(bidList.get(0).getSize() - askList.get(0).getSize());
+                askList.get(0).setSize(0);
+                askList.get(0).setStatus(OrderStatus.FINISHED.toString());
+            }else if(bidList.get(0).getSize() < askList.get(0).getSize()){
+                dealSize = bidList.get(0).getSize();
+                askList.get(0).setSize(askList.get(0).getSize() - bidList.get(0).getSize());
+                bidList.get(0).setSize(0);
+                bidList.get(0).setStatus(OrderStatus.FINISHED.toString());
+            }else {
+                dealSize = bidList.get(0).getSize();
+                askList.get(0).setSize(0);
+                bidList.get(0).setSize(0);
+                bidList.get(0).setStatus(OrderStatus.FINISHED.toString());
+                askList.get(0).setStatus(OrderStatus.FINISHED.toString());
+            }
+            //?History
+            orderbookMapper.updateByPrimaryKeySelective(bidList.get(0));
+            orderbookMapper.updateByPrimaryKeySelective(askList.get(0));
+            History history = historyMapper.selectByPrimaryKey(historyId);
+            history.setStatus(OrderStatus.FINISHED.toString());
+            historyMapper.updateByPrimaryKeySelective(history);
+            generateDealMessage(new Date(), bidList.get(0).getPrice(), dealSize, bidList.get(0).getId(), askList.get(0).getId());
+        }else{
+/*            Orderbook orderbook=new Orderbook();
+            orderbook.setType("");
+            orderbook.setSymbol(symbol);
+            orderbook.setSize(1);
+            Date date=new Date();
+            orderbook.setOperatetime(date);
+            addOrderbookItem(orderbook);*/
+
+        }
     }
 }

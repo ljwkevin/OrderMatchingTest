@@ -3,6 +3,8 @@ package com.citi.ordermatching.controller;
 import com.citi.ordermatching.domain.DealRecord;
 import com.citi.ordermatching.domain.Orderbook;
 import com.citi.ordermatching.enums.OrderStatus;
+import com.citi.ordermatching.enums.OrderType;
+import com.citi.ordermatching.enums.Strategy;
 import com.citi.ordermatching.service.OrderbookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -34,54 +36,35 @@ public class OrderbookController {
         return orderbookService.findAskBySymbol(symbol);
     }
 
-
-    public boolean checkMatch(String symbol){
-        List<Orderbook> bidList=orderbookService.findBidBySymbol(symbol);
-        List<Orderbook> askList=orderbookService.findAskBySymbol(symbol);
-        double bid=bidList.get(0).getPrice();
-        double ask=askList.get(0).getPrice();
-
-        if(bid-ask<0.000001){
-            return true;
-        }else{
-            return false;
-        }
-
-    }
-
-
-    public void match(@RequestParam("symbol")String symbol){
-
-        boolean flag=checkMatch(symbol);
-        if(flag){
-
-
-        }else{
-            Orderbook orderbook=new Orderbook();
-            orderbook.setType("");
-            orderbook.setSymbol(symbol);
-            orderbook.setSize(1);
-            Date date=new Date();
-            orderbook.setOperatetime(date);
-            orderbookService.addOrderbookItem(orderbook);
-
-        }
-    }
-
     /**
-     *traderid,symbol,type,size,strategy,
+     * Receive Trader Submit Order
+     * traderid,symbol,type,size,strategy,price
      */
     @RequestMapping("submitOrder")
     @ResponseBody
     public void selectStrategy(@RequestParam("symbol") String symbol, @RequestParam("size") Integer size,
                                @RequestParam("type") String type, @RequestParam("strategy") String strategy,
-                               @RequestParam("traderid") Integer traderid){
+                               @RequestParam("traderid") Integer traderid, @RequestParam("price") double price){
         Orderbook orderbook = new Orderbook();
         orderbook.setSymbol(symbol);
         orderbook.setSize(size);
         orderbook.setStrategy(strategy);
         orderbook.setType(type);
         orderbook.setTraderid(traderid);
-        orderbookService.processOrder(orderbook);
+        orderbook.setStatus(OrderStatus.WAITING.toString());
+        if(strategy.equals(Strategy.Matching)){
+            orderbook.setPrice(price);
+            orderbook.setOperatetime(new Date());
+            orderbookService.processMatching(orderbook);
+        }else if(strategy.equals(Strategy.MKT)){
+            orderbookService.processMKT(orderbook);
+        }else if(strategy.equals(Strategy.LMT)){
+            orderbook.setPrice(price);
+            orderbookService.processLMT(orderbook);
+        }else {
+
+        }
+
+
     }
 }

@@ -16,7 +16,14 @@ public interface OrderbookService {
 
     public void processOrder(Orderbook orderbook);
 
+    public void processMatching(Orderbook orderbook);
+
+    public boolean processMKT(Orderbook orderbook);
+
+    public void processLMT(Orderbook orderbook);
+
     Orderbook findById(int orderId);
 
     void cancelOrder(Orderbook orderbook);
+
 }
