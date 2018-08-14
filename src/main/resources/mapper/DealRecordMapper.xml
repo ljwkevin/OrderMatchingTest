@@ -18,6 +18,15 @@
     from dealrecord
     where id = #{id,jdbcType=INTEGER}
   </select>
+
+  <select id="findAllDealRecord" resultMap="BaseResultMap"  >
+    select
+    <include refid="Base_Column_List" />
+    from dealrecord
+
+  </select>
+
+
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from dealrecord
     where id = #{id,jdbcType=INTEGER}
