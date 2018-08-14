@@ -10,4 +10,10 @@ import java.util.List;
 public interface HistoryService {
 
     public List<History> findAllHistory();
+
+    public void insertHistory(History history);
+
+    public History findById(int id);
+
+    public boolean cancelOrder(History history);
 }
