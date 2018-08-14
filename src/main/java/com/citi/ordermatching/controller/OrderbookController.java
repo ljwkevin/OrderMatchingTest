@@ -83,12 +83,5 @@ public class OrderbookController {
         orderbook.setType(type);
         orderbook.setTraderid(traderid);
         orderbookService.processOrder(orderbook);
-
-    }
-
-    @RequestMapping("cancel")
-    public void cancelOrder(int orderId){
-        Orderbook orderbook = orderbookService.findById(orderId);
-        orderbookService.cancelOrder(orderbook);
     }
 }
