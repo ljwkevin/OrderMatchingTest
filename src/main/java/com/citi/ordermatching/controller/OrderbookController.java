@@ -44,7 +44,7 @@ public class OrderbookController {
     @ResponseBody
     public void selectStrategy(@RequestParam("symbol") String symbol, @RequestParam("size") Integer size,
                                @RequestParam("type") String type, @RequestParam("strategy") String strategy,
-                               @RequestParam("traderid") Integer traderid, @RequestParam("price") double price){
+                               @RequestParam("traderid") Integer traderid, @RequestParam(value = "price", defaultValue = "0") double price){
         Orderbook orderbook = new Orderbook();
         orderbook.setSymbol(symbol);
         orderbook.setSize(size);
@@ -52,13 +52,13 @@ public class OrderbookController {
         orderbook.setType(type);
         orderbook.setTraderid(traderid);
         orderbook.setStatus(OrderStatus.WAITING.toString());
-        if(strategy.equals(Strategy.Matching)){
+        if(strategy.equals(Strategy.Matching.toString())){
             orderbook.setPrice(price);
             orderbook.setOperatetime(new Date());
             orderbookService.processMatching(orderbook);
-        }else if(strategy.equals(Strategy.MKT)){
+        }else if(strategy.equals(Strategy.MKT.toString())){
             orderbookService.processMKT(orderbook);
-        }else if(strategy.equals(Strategy.LMT)){
+        }else if(strategy.equals(Strategy.LMT.toString())){
             orderbook.setPrice(price);
             orderbookService.processLMT(orderbook);
         }else {
