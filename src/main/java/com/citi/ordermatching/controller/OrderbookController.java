@@ -69,11 +69,21 @@ public class OrderbookController {
     }
 
     /**
-     *
+     *traderid,symbol,type,size,strategy,
      */
     @RequestMapping("submitOrder")
-    public void selectStrategy(Orderbook orderbook){
+    @ResponseBody
+    public void selectStrategy(@RequestParam("symbol") String symbol, @RequestParam("size") Integer size,
+                               @RequestParam("type") String type, @RequestParam("strategy") String strategy,
+                               @RequestParam("traderid") Integer traderid){
+        Orderbook orderbook = new Orderbook();
+        orderbook.setSymbol(symbol);
+        orderbook.setSize(size);
+        orderbook.setStrategy(strategy);
+        orderbook.setType(type);
+        orderbook.setTraderid(traderid);
         orderbookService.processOrder(orderbook);
+
     }
 
     @RequestMapping("cancel")
