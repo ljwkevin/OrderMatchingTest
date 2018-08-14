@@ -19,8 +19,8 @@ import java.util.List;
 @Service
 public class OrderbookServiceImpl implements OrderbookService {
 
-     @Autowired
-     private OrderbookMapper orderbookMapper;
+    @Autowired
+    private OrderbookMapper orderbookMapper;
 
     @Override
     public List<Orderbook> findBidBySymbol(String symbol) {
@@ -82,7 +82,8 @@ public class OrderbookServiceImpl implements OrderbookService {
                 generateDealMessage(new Date(), dealPrice, dealSize, bestBid.getId(), orderbook.getId());
                 bestBid.setStatus(OrderStatus.FINISHED.toString());
                 orderbook.setStatus(OrderStatus.FINISHED.toString());
-            }else if(bestBid.getSize() < orderbook.getSize()){
+            }
+            else if(bestBid.getSize() < orderbook.getSize()){
                 int size = orderbook.getSize();
                 int i = 0;
                 while (size > 0 && i < bidList.size()){
@@ -118,8 +119,52 @@ public class OrderbookServiceImpl implements OrderbookService {
                 orderbook.setStatus(OrderStatus.FINISHED.toString());
             }
         }else if(orderbook.getType().equals(OrderType.BID)){
+            //
             List<Orderbook> askList=findAskBySymbol(orderbook.getSymbol());
-            double ask=askList.get(0).getPrice();
+            Orderbook bestAsk = askList.get(0);
+            if(bestAsk.getSize() == orderbook.getSize()){
+                dealPrice = bestAsk.getPrice();
+                dealSize = bestAsk.getSize();
+                generateDealMessage(new Date(), dealPrice, dealSize, bestAsk.getId(), orderbook.getId());
+                bestAsk.setStatus(OrderStatus.FINISHED.toString());
+                orderbook.setStatus(OrderStatus.FINISHED.toString());
+            }
+            else if(bestAsk.getSize() < orderbook.getSize()){
+                int size = orderbook.getSize();
+                int i = 0;
+                while (size > 0 && i < askList.size()){
+                    if(size>askList.get(i).getSize()){
+                        dealPrice = askList.get(i).getPrice();
+                        dealSize = askList.get(i).getSize();
+                        generateDealMessage(new Date(), dealPrice, dealSize, askList.get(i).getId(), orderbook.getId());
+                        askList.get(i).setStatus(OrderStatus.FINISHED.toString());
+                        size = size - askList.get(i).getSize();
+                        i++;
+                    }else if(size<askList.get(i).getSize()){
+                        dealPrice = askList.get(i).getPrice();
+                        dealSize = size;
+                        generateDealMessage(new Date(), dealPrice, dealSize, askList.get(i).getId(), orderbook.getId());
+                        orderbook.setStatus(OrderStatus.FINISHED.toString());
+                        size = 0;
+                        i++;
+                    }else {
+                        dealPrice = askList.get(i).getPrice();
+                        dealSize = askList.get(i).getSize();
+                        generateDealMessage(new Date(), dealPrice, dealSize, bestAsk.getId(), orderbook.getId());
+                        askList.get(i).setStatus(OrderStatus.FINISHED.toString());
+                        orderbook.setStatus(OrderStatus.FINISHED.toString());
+                        size = 0;
+                        i++;
+                    }
+
+                }
+            }else {
+                dealPrice = bestAsk.getPrice();
+                dealSize = orderbook.getSize();
+                generateDealMessage(new Date(), dealPrice, dealSize, bestAsk.getId(), orderbook.getId());
+                orderbook.setStatus(OrderStatus.FINISHED.toString());
+            }
+
         }
         return false;
     }
