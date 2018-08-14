@@ -232,5 +232,152 @@ public class OrderbookServiceImpl implements OrderbookService {
      */
     private void processLMT(Orderbook orderbook) {
 
+        orderbookMapper.insertSelective(orderbook);
+
+
+        Date dealTime;
+        double dealPrice;
+        int dealSize;
+        History history = new History();
+        List<Orderbook> bidList=findBidBySymbol(orderbook.getSymbol());
+        List<Orderbook> askList=findAskBySymbol(orderbook.getSymbol());
+
+        if(orderbook.getType().equals(OrderType.ASK.toString())){
+            //
+
+            Orderbook bestBid = bidList.get(0);
+            double bestBidPrice=bestBid.getPrice();
+            double bestAskPrice=askList.get(0).getPrice();
+            if(bestAskPrice-bestBidPrice>0.01){
+                return ;
+            }else{
+                if(bestBid.getSize() == orderbook.getSize()){
+                    dealPrice = bestBid.getPrice();
+                    dealSize = bestBid.getSize();
+                    generateDealMessage(new Date(), dealPrice, dealSize, bestBid.getId(), orderbook.getId());
+                    bestBid.setStatus(OrderStatus.FINISHED.toString());
+                    orderbook.setStatus(OrderStatus.FINISHED.toString());
+                    bidList.get(0).setSize(bidList.get(0).getSize() - dealSize);
+                    orderbookMapper.updateByPrimaryKey(bidList.get(0));
+                }
+                else if(bestBid.getSize() < orderbook.getSize()){
+                    int size = orderbook.getSize();
+                    int i = 0;
+                    while (size > 0 && i < bidList.size()){
+                        if(size>bidList.get(i).getSize()){
+                            dealPrice = bidList.get(i).getPrice();
+                            dealSize = bidList.get(i).getSize();
+                            generateDealMessage(new Date(), dealPrice, dealSize, bidList.get(i).getId(), orderbook.getId());
+                            bidList.get(i).setStatus(OrderStatus.FINISHED.toString());
+                            size = size - bidList.get(i).getSize();
+                            bidList.get(i).setSize(bidList.get(i).getSize() - dealSize);
+                            orderbookMapper.updateByPrimaryKey(bidList.get(i));
+                            i++;
+                        }else if(size<bidList.get(i).getSize()){
+                            dealPrice = bidList.get(i).getPrice();
+                            dealSize = size;
+                            generateDealMessage(new Date(), dealPrice, dealSize, bidList.get(i).getId(), orderbook.getId());
+                            orderbook.setStatus(OrderStatus.FINISHED.toString());
+                            bidList.get(i).setSize(bidList.get(i).getSize() - dealSize);
+                            orderbookMapper.updateByPrimaryKey(bidList.get(i));
+                            size = 0;
+                            i++;
+                        }else {
+                            dealPrice = bidList.get(i).getPrice();
+                            dealSize = bidList.get(i).getSize();
+                            generateDealMessage(new Date(), dealPrice, dealSize, bestBid.getId(), orderbook.getId());
+                            bidList.get(i).setStatus(OrderStatus.FINISHED.toString());
+                            orderbook.setStatus(OrderStatus.FINISHED.toString());
+                            bidList.get(i).setSize(bidList.get(i).getSize() - dealSize);
+                            orderbookMapper.updateByPrimaryKey(bidList.get(i));
+                            size = 0;
+                            i++;
+                        }
+                    }
+                }else {
+                    dealPrice = bestBid.getPrice();
+                    dealSize = orderbook.getSize();
+                    generateDealMessage(new Date(), dealPrice, dealSize, bestBid.getId(), orderbook.getId());
+                    orderbook.setStatus(OrderStatus.FINISHED.toString());
+                    bidList.get(0).setSize(bidList.get(0).getSize() - dealSize);
+                    orderbookMapper.updateByPrimaryKey(bidList.get(0));
+                }
+            }
+
+
+        }else if(orderbook.getType().equals(OrderType.BID.toString())){
+            //
+            Orderbook bestBid = bidList.get(0);
+            double bestBidPrice=bestBid.getPrice();
+            double bestAskPrice=askList.get(0).getPrice();
+            if(bestAskPrice-bestBidPrice>0.01){
+                return ;
+            }else {
+
+                Orderbook bestAsk = askList.get(0);
+                if (bestAsk.getSize() == orderbook.getSize()) {
+                    dealPrice = bestAsk.getPrice();
+                    dealSize = bestAsk.getSize();
+                    generateDealMessage(new Date(), dealPrice, dealSize, bestAsk.getId(), orderbook.getId());
+                    bestAsk.setStatus(OrderStatus.FINISHED.toString());
+                    orderbook.setStatus(OrderStatus.FINISHED.toString());
+                    askList.get(0).setSize(askList.get(0).getSize() - dealSize);
+                    orderbookMapper.updateByPrimaryKey(askList.get(0));
+                } else if (bestAsk.getSize() < orderbook.getSize()) {
+                    int size = orderbook.getSize();
+                    int i = 0;
+                    while (size > 0 && i < askList.size()) {
+                        if (size > askList.get(i).getSize()) {
+                            dealPrice = askList.get(i).getPrice();
+                            dealSize = askList.get(i).getSize();
+                            generateDealMessage(new Date(), dealPrice, dealSize, askList.get(i).getId(), orderbook.getId());
+                            askList.get(i).setStatus(OrderStatus.FINISHED.toString());
+                            size = size - askList.get(i).getSize();
+                            askList.get(i).setSize(askList.get(i).getSize() - dealSize);
+                            orderbookMapper.updateByPrimaryKey(askList.get(i));
+                            i++;
+                        } else if (size < askList.get(i).getSize()) {
+                            dealPrice = askList.get(i).getPrice();
+                            dealSize = size;
+                            generateDealMessage(new Date(), dealPrice, dealSize, askList.get(i).getId(), orderbook.getId());
+                            orderbook.setStatus(OrderStatus.FINISHED.toString());
+                            size = 0;
+                            askList.get(i).setSize(askList.get(i).getSize() - dealSize);
+                            orderbookMapper.updateByPrimaryKey(askList.get(i));
+                            i++;
+                        } else {
+                            dealPrice = askList.get(i).getPrice();
+                            dealSize = askList.get(i).getSize();
+                            generateDealMessage(new Date(), dealPrice, dealSize, bestAsk.getId(), orderbook.getId());
+                            askList.get(i).setStatus(OrderStatus.FINISHED.toString());
+                            orderbook.setStatus(OrderStatus.FINISHED.toString());
+                            size = 0;
+                            askList.get(i).setSize(askList.get(i).getSize() - dealSize);
+                            orderbookMapper.updateByPrimaryKey(askList.get(i));
+                            i++;
+                        }
+
+                    }
+                } else {
+                    dealPrice = bestAsk.getPrice();
+                    dealSize = orderbook.getSize();
+                    generateDealMessage(new Date(), dealPrice, dealSize, bestAsk.getId(), orderbook.getId());
+                    orderbook.setStatus(OrderStatus.FINISHED.toString());
+                    askList.get(0).setSize(askList.get(0).getSize() - dealSize);
+                    orderbookMapper.updateByPrimaryKey(askList.get(0));
+                }
+
+            }
+        }
+        history.setCommittime(new Date());
+        history.setSize(orderbook.getSize());
+        history.setStatus(OrderStatus.FINISHED.toString());
+        history.setPrice(orderbook.getPrice());
+        history.setTraderid(orderbook.getTraderid());
+        history.setType(orderbook.getType());
+        history.setSymbol(orderbook.getSymbol());
+        history.setStrategy(Strategy.LMT.toString());
+        historyMapper.insertSelective(history);
+
     }
 }
