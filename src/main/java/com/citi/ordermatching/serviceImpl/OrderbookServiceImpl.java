@@ -102,7 +102,7 @@ public class OrderbookServiceImpl implements OrderbookService {
         Date dealTime;
         double dealPrice;
         int dealSize;
-/*        History history;*/
+        History history = new History();
         if(orderbook.getType().equals(OrderType.ASK.toString())){
             //
             List<Orderbook> bidList=findBidBySymbol(orderbook.getSymbol());
@@ -214,10 +214,16 @@ public class OrderbookServiceImpl implements OrderbookService {
                 askList.get(0).setSize(askList.get(0).getSize() - dealSize);
                 orderbookMapper.updateByPrimaryKey(askList.get(0));
             }
-
         }
-/*        historyMapper.insertSelective(history);*/
-        return false;
+        history.setCommittime(new Date());
+        history.setSize(orderbook.getSize());
+        history.setStatus(OrderStatus.FINISHED.toString());
+        history.setTraderid(orderbook.getTraderid());
+        history.setType(orderbook.getType());
+        history.setSymbol(orderbook.getSymbol());
+        history.setStrategy(Strategy.MKT.toString());
+        historyMapper.insertSelective(history);
+        return true;
     }
 
     /**
