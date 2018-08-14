@@ -14,14 +14,14 @@ public class DealRecord {
     private Integer bidorderid;
 
     private Integer askorderid;
-
+/*
     public DealRecord(Date dealtime, Double dealprice, Integer dealsize, Integer bidorderid, Integer askorderid) {
         this.dealtime = dealtime;
         this.dealprice = dealprice;
         this.dealsize = dealsize;
         this.bidorderid = bidorderid;
         this.askorderid = askorderid;
-    }
+    }*/
 
     public Integer getId() {
         return id;
