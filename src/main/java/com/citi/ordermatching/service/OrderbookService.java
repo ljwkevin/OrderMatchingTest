@@ -16,4 +16,7 @@ public interface OrderbookService {
 
     public void processOrder(Orderbook orderbook);
 
+    Orderbook findById(int orderId);
+
+    void cancelOrder(Orderbook orderbook);
 }
