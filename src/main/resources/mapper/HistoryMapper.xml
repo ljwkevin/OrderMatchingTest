@@ -5,7 +5,7 @@
     <id column="id" property="id" jdbcType="INTEGER" />
     <result column="committime" property="committime" jdbcType="TIMESTAMP" />
     <result column="traderid" property="traderid" jdbcType="INTEGER" />
-    <result column="orderid" property="orderid" jdbcType="INTEGER" />
+    <result column="symbol" property="symbol" jdbcType="VARCHAR" />
     <result column="type" property="type" jdbcType="VARCHAR" />
     <result column="size" property="size" jdbcType="INTEGER" />
     <result column="price" property="price" jdbcType="DOUBLE" />
@@ -15,17 +15,19 @@
     <result column="duration" property="duration" jdbcType="INTEGER" />
   </resultMap>
   <sql id="Base_Column_List" >
-    id, committime, traderid, orderid, type, size, price, strategy, status, fok, duration
+    id, committime, traderid, symbol, type, size, price, strategy, status, fok, duration
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
-    select 
-    <include refid="Base_Column_List" />
-    from history
-    where id = #{id,jdbcType=INTEGER}
-  </select>
+  select
+  <include refid="Base_Column_List" />
+  from history
+  where id = #{id,jdbcType=INTEGER}
+</select>
 
 
-  <select id="findAllHistory" resultMap="BaseResultMap"  >
+
+
+  <select id="findAllHistory" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select
     <include refid="Base_Column_List" />
     from history
@@ -37,14 +39,14 @@
     where id = #{id,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.citi.ordermatching.domain.History" >
-    insert into history (id, committime, traderid, 
-      orderid, type, size, 
-      price, strategy, status, 
-      fok, duration)
-    values (#{id,jdbcType=INTEGER}, #{committime,jdbcType=TIMESTAMP}, #{traderid,jdbcType=INTEGER}, 
-      #{orderid,jdbcType=INTEGER}, #{type,jdbcType=VARCHAR}, #{size,jdbcType=INTEGER}, 
-      #{price,jdbcType=DOUBLE}, #{strategy,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
-      #{fok,jdbcType=VARCHAR}, #{duration,jdbcType=INTEGER})
+    insert into history (id, committime, traderid,
+    symbol, type, size,
+    price, strategy, status,
+    fok, duration)
+    values (#{id,jdbcType=INTEGER}, #{committime,jdbcType=TIMESTAMP}, #{traderid,jdbcType=INTEGER},
+    #{symbol,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{size,jdbcType=INTEGER},
+    #{price,jdbcType=DOUBLE}, #{strategy,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR},
+    #{fok,jdbcType=VARCHAR}, #{duration,jdbcType=INTEGER})
   </insert>
   <insert id="insertSelective" parameterType="com.citi.ordermatching.domain.History" >
     insert into history
@@ -58,8 +60,8 @@
       <if test="traderid != null" >
         traderid,
       </if>
-      <if test="orderid != null" >
-        orderid,
+      <if test="symbol != null" >
+        symbol,
       </if>
       <if test="type != null" >
         type,
@@ -93,8 +95,8 @@
       <if test="traderid != null" >
         #{traderid,jdbcType=INTEGER},
       </if>
-      <if test="orderid != null" >
-        #{orderid,jdbcType=INTEGER},
+      <if test="symbol != null" >
+        #{symbol,jdbcType=VARCHAR},
       </if>
       <if test="type != null" >
         #{type,jdbcType=VARCHAR},
@@ -128,8 +130,8 @@
       <if test="traderid != null" >
         traderid = #{traderid,jdbcType=INTEGER},
       </if>
-      <if test="orderid != null" >
-        orderid = #{orderid,jdbcType=INTEGER},
+      <if test="symbol != null" >
+        symbol = #{symbol,jdbcType=VARCHAR},
       </if>
       <if test="type != null" >
         type = #{type,jdbcType=VARCHAR},
@@ -159,7 +161,7 @@
     update history
     set committime = #{committime,jdbcType=TIMESTAMP},
       traderid = #{traderid,jdbcType=INTEGER},
-      orderid = #{orderid,jdbcType=INTEGER},
+      symbol = #{symbol,jdbcType=VARCHAR},
       type = #{type,jdbcType=VARCHAR},
       size = #{size,jdbcType=INTEGER},
       price = #{price,jdbcType=DOUBLE},
