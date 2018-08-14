@@ -6,6 +6,7 @@ import com.citi.ordermatching.service.DealRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Date;
+import java.util.List;
 
 public class DealRecordServiceImpl implements DealRecordService {
     @Autowired
@@ -13,8 +14,12 @@ public class DealRecordServiceImpl implements DealRecordService {
 
     @Override
     public void addRecord(Date dealTime, double dealPrice, int dealSize, int bidOrderId, int askOrderId){
-        DealRecord dr = new DealRecord(dealTime, dealPrice, dealSize, bidOrderId, askOrderId);
-        //update the database Table "dealrecord"
-        dealRecordMapper.insert(dr);
+
     }
+
+    @Override
+    public List<DealRecord> findAllRecord() {
+        return dealRecordMapper.findAllDealRecord();
+    }
+
 }
