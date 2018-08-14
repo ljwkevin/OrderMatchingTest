@@ -91,4 +91,17 @@ public class StockController {
             return jsonResult;
     }
 
+
+    @RequestMapping("/findOrderbook")
+    @ResponseBody
+    public String findOrderbook(@PathParam("symbol")String symbol){
+        List<Orderbook> bidlist=orderbookService.findBidBySymbol(symbol);
+        List<Orderbook> askList=orderbookService.findAskBySymbol(symbol);
+        Map map=new HashMap();
+        map.put("bidList",bidlist);
+        map.put("askList",askList);
+        String jsonResult=JSON.toJSONString(map);
+        return jsonResult;
+    }
+
 }
