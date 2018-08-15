@@ -15,10 +15,14 @@ public interface OrderbookMapper {
 
     Orderbook selectByPrimaryKey(Integer id);
 
+    Orderbook selectByOrderid(String orderid);
+
     int updateByPrimaryKeySelective(Orderbook record);
 
     int updateByPrimaryKey(Orderbook record);
 
     List<Orderbook> findAskBySymbol(String symbol);
     List<Orderbook> findBidBySymbol(String symbol);
+
+
 }
