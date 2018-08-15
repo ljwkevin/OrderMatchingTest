@@ -35,17 +35,17 @@ public class RecordController {
         return jsonResult;
     }
 
-    @RequestMapping("/findHistoryAndRecord")
-    @ResponseBody
-    public String findHistoryAndRecord(){
-        List<DealRecord> recordList=dealRecordService.findAllRecord();
-        List<History> historyList=historyService.findAllHistory();
-        Map map=new HashMap();
-        map.put("recordList",recordList);
-        map.put("historyList",historyList);
-
-        String jsonResult=JSON.toJSONString(map);
-        return jsonResult;
-
-    }
+//    @RequestMapping("/findHistoryAndRecord")
+//    @ResponseBody
+//    public String findHistoryAndRecord(){
+//        List<DealRecord> recordList=dealRecordService.findAllRecord();
+//        List<History> historyList=historyService.findAllHistory();
+//        Map map=new HashMap();
+//        map.put("recordList",recordList);
+//        map.put("historyList",historyList);
+//
+//        String jsonResult=JSON.toJSONString(map);
+//        return jsonResult;
+//
+//    }
 }
