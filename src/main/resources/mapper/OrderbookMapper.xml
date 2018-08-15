@@ -48,6 +48,9 @@
     where id = #{id,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.citi.ordermatching.domain.Orderbook" >
+    <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
     insert into orderbook (id, symbol, traderid,
       type, size, price, status,
       operatetime, strategy, FOK,
@@ -58,6 +61,7 @@
       #{duration,jdbcType=VARCHAR}, #{orderid,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.citi.ordermatching.domain.Orderbook" >
+
     insert into orderbook
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
