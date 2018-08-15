@@ -27,6 +27,15 @@
 </select>
 
 
+
+  <select id="findAllOrders" resultMap="BaseResultMap"  >
+    select
+    <include refid="Base_Column_List" />
+    from orderbook
+
+  </select>
+
+
   <select id="selectByOrderid" resultMap="BaseResultMap" parameterType="java.lang.String" >
     select
     <include refid="Base_Column_List" />
