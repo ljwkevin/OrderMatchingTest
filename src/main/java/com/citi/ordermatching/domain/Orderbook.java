@@ -25,6 +25,8 @@ public class Orderbook {
 
     private String duration;
 
+    private String orderid;
+
     public Integer getId() {
         return id;
     }
@@ -107,5 +109,13 @@ public class Orderbook {
 
     public void setDuration(String duration) {
         this.duration = duration;
+    }
+
+    public String getOrderid() {
+        return orderid;
+    }
+
+    public void setOrderid(String orderid) {
+        this.orderid = orderid;
     }
 }

@@ -25,6 +25,8 @@ public class History {
 
     private Integer duration;
 
+    private String orderid;
+
     public Integer getId() {
         return id;
     }
@@ -113,5 +115,13 @@ public class History {
 
     public void setDuration(Integer duration) {
         this.duration = duration;
+    }
+
+    public String getOrderid() {
+        return orderid;
+    }
+
+    public void setOrderid(String orderid) {
+        this.orderid = orderid;
     }
 }

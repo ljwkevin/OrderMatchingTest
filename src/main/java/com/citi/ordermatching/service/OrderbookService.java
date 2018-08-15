@@ -1,5 +1,6 @@
 package com.citi.ordermatching.service;
 
+import com.citi.ordermatching.domain.History;
 import com.citi.ordermatching.domain.Orderbook;
 
 import java.util.List;
@@ -18,9 +19,9 @@ public interface OrderbookService {
 
     public void processMatching(Orderbook orderbook);
 
-    public boolean processMKT(Orderbook orderbook);
+    public boolean processMKT(History history);
 
-    public void processLMT(Orderbook orderbook);
+    public void processLMT(History history);
 
     Orderbook findById(int orderId);
 

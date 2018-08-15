@@ -13,9 +13,10 @@
     <result column="status" property="status" jdbcType="VARCHAR" />
     <result column="fok" property="fok" jdbcType="VARCHAR" />
     <result column="duration" property="duration" jdbcType="INTEGER" />
+    <result column="orderid" property="orderid" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Base_Column_List" >
-    id, committime, traderid, symbol, type, size, price, strategy, status, fok, duration
+    id, committime, traderid, symbol, type, size, price, strategy, status, fok, duration, orderid
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
   select
@@ -42,13 +43,13 @@
     insert into history (id, committime, traderid,
     symbol, type, size,
     price, strategy, status,
-    fok, duration)
+    fok, duration, orderid)
     values (#{id,jdbcType=INTEGER}, #{committime,jdbcType=TIMESTAMP}, #{traderid,jdbcType=INTEGER},
     #{symbol,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{size,jdbcType=INTEGER},
     #{price,jdbcType=DOUBLE}, #{strategy,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR},
-    #{fok,jdbcType=VARCHAR}, #{duration,jdbcType=INTEGER})
+    #{fok,jdbcType=VARCHAR}, #{duration,jdbcType=INTEGER}, #{orderid,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="com.citi.ordermatching.domain.History" >
+  <insert id="insertSelective" parameterType="com.citi.ordermatching.domain.History">
     insert into history
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -83,6 +84,9 @@
       </if>
       <if test="duration != null" >
         duration,
+      </if>
+      <if test="orderid != null" >
+        orderid,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
@@ -119,6 +123,9 @@
       <if test="duration != null" >
         #{duration,jdbcType=INTEGER},
       </if>
+      <if test="orderid != null" >
+        #{orderid,jdbcType=VARCHAR},
+      </if>
     </trim>
   </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.citi.ordermatching.domain.History" >
@@ -154,6 +161,9 @@
       <if test="duration != null" >
         duration = #{duration,jdbcType=INTEGER},
       </if>
+      <if test="orderid != null" >
+        duration = #{orderid,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -169,6 +179,7 @@
       status = #{status,jdbcType=VARCHAR},
       fok = #{fok,jdbcType=VARCHAR},
       duration = #{duration,jdbcType=INTEGER}
+      orderid = #{orderid, jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

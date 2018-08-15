@@ -13,9 +13,10 @@
     <result column="strategy" property="strategy" jdbcType="VARCHAR" />
     <result column="FOK" property="fok" jdbcType="VARCHAR" />
     <result column="duration" property="duration" jdbcType="VARCHAR" />
+    <result column="orderid" property="orderid" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Base_Column_List" >
-    id, symbol, traderid, type, size, price, status, operatetime, strategy, FOK, duration
+    id, symbol, traderid, type, size, price, status, operatetime, strategy, FOK, duration, orderid
   </sql>
 
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
@@ -31,14 +32,14 @@
     select
     <include refid="Base_Column_List" />
     from orderbook
-    where symbol=#{symbol,jdbcType=VARCHAR} and type="ask" order by price ASC
+    where symbol=#{symbol,jdbcType=VARCHAR} and type="ask" and status="WAITING" order by price ASC
   </select>
 
   <select id="findBidBySymbol" resultMap="BaseResultMap" parameterType="java.lang.String" >
     select
     <include refid="Base_Column_List" />
     from orderbook
-    where symbol=#{symbol,jdbcType=VARCHAR} and type="bid" order by price DESC
+    where symbol=#{symbol,jdbcType=VARCHAR} and type="bid" and status="WAITING" order by price DESC
   </select>
 
 
@@ -50,11 +51,11 @@
     insert into orderbook (id, symbol, traderid,
       type, size, price, status,
       operatetime, strategy, FOK,
-      duration)
+      duration, orderid)
     values (#{id,jdbcType=INTEGER}, #{symbol,jdbcType=VARCHAR}, #{traderid,jdbcType=INTEGER},
       #{type,jdbcType=VARCHAR}, #{size,jdbcType=INTEGER}, #{price,jdbcType=DOUBLE}, #{status,jdbcType=VARCHAR},
       #{operatetime,jdbcType=TIMESTAMP}, #{strategy,jdbcType=VARCHAR}, #{fok,jdbcType=VARCHAR},
-      #{duration,jdbcType=VARCHAR})
+      #{duration,jdbcType=VARCHAR}, #{orderid,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.citi.ordermatching.domain.Orderbook" >
     insert into orderbook
@@ -92,6 +93,9 @@
       <if test="duration != null" >
         duration,
       </if>
+      <if test="orderid != null" >
+        orderid,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -126,6 +130,9 @@
       </if>
       <if test="duration != null" >
         #{duration,jdbcType=VARCHAR},
+      </if>
+      <if test="orderid != null" >
+        #{orderid,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -162,6 +169,9 @@
       <if test="duration != null" >
         duration = #{duration,jdbcType=VARCHAR},
       </if>
+      <if test="orderid != null" >
+        orderid = #{orderid,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -176,7 +186,8 @@
       operatetime = #{operatetime,jdbcType=TIMESTAMP},
       strategy = #{strategy,jdbcType=VARCHAR},
       FOK = #{fok,jdbcType=VARCHAR},
-      duration = #{duration,jdbcType=VARCHAR}
+      duration = #{duration,jdbcType=VARCHAR},
+      orderid = #{orderid,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

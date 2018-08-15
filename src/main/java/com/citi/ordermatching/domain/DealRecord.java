@@ -11,9 +11,9 @@ public class DealRecord {
 
     private Integer dealsize;
 
-    private Integer bidorderid;
+    private String bidorderid;
 
-    private Integer askorderid;
+    private String askorderid;
 /*
     public DealRecord(Date dealtime, Double dealprice, Integer dealsize, Integer bidorderid, Integer askorderid) {
         this.dealtime = dealtime;
@@ -55,19 +55,19 @@ public class DealRecord {
         this.dealsize = dealsize;
     }
 
-    public Integer getBidorderid() {
+    public String getBidorderid() {
         return bidorderid;
     }
 
-    public void setBidorderid(Integer bidorderid) {
+    public void setBidorderid(String bidorderid) {
         this.bidorderid = bidorderid;
     }
 
-    public Integer getAskorderid() {
+    public String getAskorderid() {
         return askorderid;
     }
 
-    public void setAskorderid(Integer askorderid) {
+    public void setAskorderid(String askorderid) {
         this.askorderid = askorderid;
     }
 }
