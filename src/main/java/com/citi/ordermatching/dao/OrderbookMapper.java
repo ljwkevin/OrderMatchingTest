@@ -24,5 +24,7 @@ public interface OrderbookMapper {
     List<Orderbook> findAskBySymbol(String symbol);
     List<Orderbook> findBidBySymbol(String symbol);
 
+    List<Orderbook> findAllOrders();
+
 
 }
