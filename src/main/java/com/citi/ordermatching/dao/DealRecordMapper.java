@@ -20,4 +20,10 @@ public interface DealRecordMapper {
     int updateByPrimaryKey(DealRecord record);
 
     List<DealRecord> findAllDealRecord();
+
+    List<DealRecord> findAllDealRecordByBidId(String bidid);
+
+    List<DealRecord> findAllDealRecordByAskId(String askid);
+
+
 }
