@@ -9,7 +9,7 @@ import java.util.List;
  */
 public interface HistoryService {
 
-    public List<History> findAllHistory();
+    public String findAllHistory();
 
     public void insertHistory(History history);
 
