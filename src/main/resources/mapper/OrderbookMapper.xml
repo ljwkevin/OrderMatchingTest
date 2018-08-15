@@ -20,11 +20,22 @@
   </sql>
 
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
-    select 
+  select
+  <include refid="Base_Column_List" />
+  from orderbook
+  where id = #{id,jdbcType=INTEGER}
+</select>
+
+
+  <select id="selectByOrderid" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select
     <include refid="Base_Column_List" />
     from orderbook
-    where id = #{id,jdbcType=INTEGER}
+    where orderid = #{orderid,jdbcType=VARCHAR}
   </select>
+
+
+
 
 
 
