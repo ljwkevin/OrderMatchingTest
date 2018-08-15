@@ -26,6 +26,13 @@
 </select>
 
 
+  <select id="selectByOrderid" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select
+    <include refid="Base_Column_List" />
+    from history
+    where orderid = #{orderid,jdbcType=VARCHAR}
+  </select>
+
 
 
   <select id="findAllHistory" resultMap="BaseResultMap" parameterType="java.lang.Integer" >

@@ -17,7 +17,7 @@ public interface OrderbookService {
 
     public void processOrder(Orderbook orderbook);
 
-    public void processMatching(Orderbook orderbook);
+    public void processMatching(History history);
 
     public boolean processMKT(History history);
 

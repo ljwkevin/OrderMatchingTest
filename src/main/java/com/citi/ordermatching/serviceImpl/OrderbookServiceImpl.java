@@ -427,23 +427,25 @@ public class OrderbookServiceImpl implements OrderbookService {
 
     /**
      * Matching Order
-     * @param orderbook
+     * @param history
      */
     @Override
-    public void processMatching(Orderbook orderbook) {
-        History history = new History();
-        history.setCommittime(new Date());
-        history.setSize(orderbook.getSize());
-        history.setStatus(OrderStatus.WAITING.toString());
-        history.setPrice(orderbook.getPrice());
-        history.setTraderid(orderbook.getTraderid());
-        history.setType(orderbook.getType());
-        history.setSymbol(orderbook.getSymbol());
-        history.setStrategy(Strategy.Matching.toString());
-        int i = orderbookMapper.insertSelective(orderbook);
-        int j = historyMapper.insertSelective(history);
-        if(i > 0 && j > 0){
-            match(orderbook.getSymbol(), history.getId());
+    public void processMatching(History history) {
+        Orderbook orderbook = new Orderbook();
+        orderbook.setSymbol(history.getSymbol());
+        orderbook.setSize(history.getSize());
+        orderbook.setStrategy(history.getStrategy());
+        orderbook.setType(history.getType());
+        orderbook.setTraderid(history.getTraderid());
+        orderbook.setStatus(history.getStatus());
+        orderbook.setOperatetime(history.getCommittime());
+        orderbook.setPrice(history.getPrice());
+        orderbook.setOrderid(history.getOrderid());
+
+        int i = orderbookMapper.insert(orderbook);
+        int j = historyMapper.insert(history);
+        if(j > 0 && j > 0){
+             match(orderbook.getSymbol());
         }
     }
 
@@ -455,7 +457,6 @@ public class OrderbookServiceImpl implements OrderbookService {
         double ask=askList.get(0).getPrice();
 
         if(bid-ask<0.000001){
-
             return true;
         }else{
             return false;
@@ -463,46 +464,43 @@ public class OrderbookServiceImpl implements OrderbookService {
 
     }
 
-    public void match(String symbol, int historyId){
+    public void match(String symbol){
         List<Orderbook> bidList=findBidBySymbol(symbol);
         List<Orderbook> askList=findAskBySymbol(symbol);
+        History bidHistory = historyMapper.selectByOrderid(bidList.get(0).getOrderid());
+        History askHistory = historyMapper.selectByOrderid(askList.get(0).getOrderid());
         boolean flag=checkMatch(symbol);
         if(flag){
-
             int dealSize;
             if(bidList.get(0).getSize() > askList.get(0).getSize()){
                 dealSize = askList.get(0).getSize();
                 bidList.get(0).setSize(bidList.get(0).getSize() - askList.get(0).getSize());
                 askList.get(0).setSize(0);
                 askList.get(0).setStatus(OrderStatus.FINISHED.toString());
+                askHistory.setStatus(OrderStatus.FINISHED.toString());
             }else if(bidList.get(0).getSize() < askList.get(0).getSize()){
                 dealSize = bidList.get(0).getSize();
                 askList.get(0).setSize(askList.get(0).getSize() - bidList.get(0).getSize());
                 bidList.get(0).setSize(0);
                 bidList.get(0).setStatus(OrderStatus.FINISHED.toString());
+                bidHistory.setStatus(OrderStatus.FINISHED.toString());
             }else {
                 dealSize = bidList.get(0).getSize();
                 askList.get(0).setSize(0);
                 bidList.get(0).setSize(0);
                 bidList.get(0).setStatus(OrderStatus.FINISHED.toString());
                 askList.get(0).setStatus(OrderStatus.FINISHED.toString());
+                bidHistory.setStatus(OrderStatus.FINISHED.toString());
+                askHistory.setStatus(OrderStatus.FINISHED.toString());
             }
-            //?History
+
             orderbookMapper.updateByPrimaryKeySelective(bidList.get(0));
             orderbookMapper.updateByPrimaryKeySelective(askList.get(0));
-            History history = historyMapper.selectByPrimaryKey(historyId);
-            history.setStatus(OrderStatus.FINISHED.toString());
-            historyMapper.updateByPrimaryKeySelective(history);
+
+            historyMapper.updateByPrimaryKeySelective(bidHistory);
+            historyMapper.updateByPrimaryKeySelective(askHistory);
             generateDealMessage(new Date(), bidList.get(0).getPrice(), dealSize, bidList.get(0).getOrderid(), askList.get(0).getOrderid());
         }else{
-/*            Orderbook orderbook=new Orderbook();
-            orderbook.setType("");
-            orderbook.setSymbol(symbol);
-            orderbook.setSize(1);
-            Date date=new Date();
-            orderbook.setOperatetime(date);
-            addOrderbookItem(orderbook);*/
-
         }
     }
 }

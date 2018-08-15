@@ -60,18 +60,10 @@ public class OrderbookController {
         history.setStatus(OrderStatus.WAITING.toString());
         history.setOrderid(generateOrderid(date, traderid));
 
-
-        Orderbook orderbook = new Orderbook();
-        orderbook.setSymbol(symbol);
-        orderbook.setSize(size);
-        orderbook.setStrategy(strategy);
-        orderbook.setType(type);
-        orderbook.setTraderid(traderid);
-        orderbook.setStatus(OrderStatus.WAITING.toString());
         //根据strategy，选择进一步要赋值的History对象的属性，并调用对应service
         if(strategy.equals(Strategy.Matching.toString())){
             history.setPrice(price);
-            orderbookService.processMatching(orderbook);
+            orderbookService.processMatching(history);
         }else if(strategy.equals(Strategy.MKT.toString())){
             orderbookService.processMKT(history);
         }else if(strategy.equals(Strategy.LMT.toString())){
