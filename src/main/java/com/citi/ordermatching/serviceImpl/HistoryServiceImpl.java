@@ -101,8 +101,7 @@ public class HistoryServiceImpl implements HistoryService {
 
 
             if(orderbook!=null){
-                if(orderbook.getStatus().equals(OrderStatus.CANCELLED.toString())||
-                        orderbook.getStatus().equals(OrderStatus.WAITING.toString())){
+                if(orderbook.getStatus().equals(OrderStatus.WAITING.toString())){
                     recordOrder.setOrderbook(orderbook);
                     ordersList.add(orderbook);
                 }else{

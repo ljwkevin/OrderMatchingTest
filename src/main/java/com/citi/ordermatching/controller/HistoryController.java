@@ -36,8 +36,8 @@ public class HistoryController {
     }
 
     @RequestMapping("cancel")
-    public boolean cancelOrder(@PathParam("id") int historyId){
-        History history = historyService.findById(historyId);
+    public boolean cancelOrder(@PathParam("id") Integer id){
+        History history = historyService.findById(id);
         return historyService.cancelOrder(history);
     }
 
