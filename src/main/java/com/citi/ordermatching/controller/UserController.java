@@ -31,7 +31,7 @@ public class UserController {
 
     @RequestMapping("/login")
     @ResponseBody
-    public String userLogin(@RequestParam("username")String username,@RequestParam("password")String password){
+    public String userLogin(@RequestParam("username")String username,@RequestParam("password")String password)throws  Exception{
 
 
         User user=new User();
@@ -50,10 +50,9 @@ public class UserController {
             String jsonResult= JSON.toJSONString(map);
             return jsonResult;
         }else{
-            Map map=new HashMap();
-            map.put("role",null);
-            String jsonResult=JSON.toJSONString(map);
-            return jsonResult;
+            throw new Exception("Fail");
+
+
         }
 
     }
