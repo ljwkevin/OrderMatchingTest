@@ -4,5 +4,6 @@ public enum Strategy {
     Matching,
     MKT,
     LMT,
-    STP
+    STP,
+    MIT
 }

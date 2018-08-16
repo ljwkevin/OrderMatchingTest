@@ -139,6 +139,6 @@ public class HistoryServiceImpl implements HistoryService {
     @Override
     public boolean cancelOrder(History history) {
         history.setStatus(OrderStatus.CANCELLED.toString());
-        return historyMapper.updateByPrimaryKeySelective(history)>0 ? true : false;
+        return historyMapper.updateByOrderidSelective(history)>0 ? true : false;
     }
 }

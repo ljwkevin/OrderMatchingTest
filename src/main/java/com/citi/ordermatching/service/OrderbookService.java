@@ -26,6 +26,8 @@ public interface OrderbookService {
 
     public void processSTP(History history);
 
+    public void processMIT(History history);
+
     Orderbook findById(int orderId);
 
     void cancelOrder(Orderbook orderbook);

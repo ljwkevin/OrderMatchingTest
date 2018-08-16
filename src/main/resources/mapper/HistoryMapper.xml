@@ -47,7 +47,19 @@
         where symbol = #{symbol,jdbcType=VARCHAR} and status = "WAITING" and type = "ASK" and strategy = "STP" order by price desc
     </select>
 
+  <select id="selectBitMITWaitingByPriceDescByTimeAsc" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select
+    <include refid="Base_Column_List" />
+    from history
+    where symbol = #{symbol,jdbcType=VARCHAR} and status = "WAITING" and type = "BID" and strategy = "MIT" order by price desc
+  </select>
 
+  <select id="selectAskMITWaitingByPriceAscByTimeAsc" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select
+    <include refid="Base_Column_List" />
+    from history
+    where symbol = #{symbol,jdbcType=VARCHAR} and status = "WAITING" and type = "ASK" and strategy = "MIT" order by price asc
+  </select>
   <select id="findAllHistory" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select
     <include refid="Base_Column_List" />

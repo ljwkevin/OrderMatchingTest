@@ -73,6 +73,10 @@ public class OrderbookController {
             //if BID, price > bestASK; if ASK, price < beskBID
             history.setPrice(price);
             orderbookService.processSTP(history);
+        }else if(strategy.equals(Strategy.MIT.toString())){
+            //if BID, price < bestASK; if ASK, price > bestBID
+            history.setPrice(price);
+            orderbookService.processMIT(history);
         }
 
 

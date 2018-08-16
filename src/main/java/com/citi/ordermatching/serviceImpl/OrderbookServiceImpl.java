@@ -445,6 +445,11 @@ public class OrderbookServiceImpl implements OrderbookService {
         historyMapper.insertSelective(history);
     }
 
+    @Override
+    public void processMIT(History history) {
+        historyMapper.insertSelective(history);
+    }
+
     public void processSTP(String symbol){
         ArrayList<History> bitHistories = historyMapper.selectBitSTPWaitingByPriceAscByTimeAsc(symbol);
         ArrayList<History> askHistories = historyMapper.selectAskSTPWaitingByPriceDescByTimeAsc(symbol);
@@ -461,6 +466,27 @@ public class OrderbookServiceImpl implements OrderbookService {
             double bit=bidList.get(0).getPrice();
             double price = history.getPrice();
             if(bit <= price){
+                processMKT(history, bidList, askList);
+            }
+        }
+    }
+
+    public void processMIT(String symbol){
+        ArrayList<History> bitHistories = historyMapper.selectBitMITWaitingByPriceDescByTimeAsc(symbol);
+        ArrayList<History> askHistories = historyMapper.selectAskMITWaitingByPriceAscByTimeAsc(symbol);
+        List<Orderbook> askList=findAskBySymbol(symbol);
+        List<Orderbook> bidList=findBidBySymbol(symbol);
+        for(History history : bitHistories){
+            double ask=askList.get(0).getPrice();
+            double price = history.getPrice();
+            if(ask <= price){
+                processMKT(history, bidList, askList);
+            }
+        }
+        for(History history : askHistories){
+            double bit=bidList.get(0).getPrice();
+            double price = history.getPrice();
+            if(bit >= price){
                 processMKT(history, bidList, askList);
             }
         }

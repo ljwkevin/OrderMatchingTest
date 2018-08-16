@@ -29,5 +29,9 @@ public interface HistoryMapper {
 
     ArrayList<History> selectAskSTPWaitingByPriceDescByTimeAsc(String symbol);
 
-    void updateByOrderidSelective(History history);
+    int updateByOrderidSelective(History history);
+
+    ArrayList<History> selectBitMITWaitingByPriceDescByTimeAsc(String symbol);
+
+    ArrayList<History> selectAskMITWaitingByPriceAscByTimeAsc(String symbol);
 }
