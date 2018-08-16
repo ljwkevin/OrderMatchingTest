@@ -3,7 +3,7 @@
 <mapper namespace="com.citi.ordermatching.dao.DealRecordMapper" >
   <resultMap id="BaseResultMap" type="com.citi.ordermatching.domain.DealRecord" >
     <id column="id" property="id" jdbcType="INTEGER" />
-    <result column="dealtime" property="dealtime" jdbcType="DATE" />
+    <result column="dealtime" property="dealtime" jdbcType="TIMESTAMP" />
     <result column="dealprice" property="dealprice" jdbcType="DOUBLE" />
     <result column="dealsize" property="dealsize" jdbcType="INTEGER" />
     <result column="bidorderid" property="bidorderid" jdbcType="VARCHAR" />
@@ -48,13 +48,14 @@
     delete from dealrecord
     where id = #{id,jdbcType=INTEGER}
   </delete>
+
   <insert id="insert" parameterType="com.citi.ordermatching.domain.DealRecord" >
-    insert into dealrecord (id, dealtime, dealprice, 
-      dealsize, bidorderid, askorderid
-      )
-    values (#{id,jdbcType=INTEGER}, #{dealtime,jdbcType=DATE}, #{dealprice,jdbcType=DOUBLE}, 
-      #{dealsize,jdbcType=INTEGER}, #{bidorderid,jdbcType=VARCHAR}, #{askorderid,jdbcType=VARCHAR}
-      )
+    insert into dealrecord (id, dealtime, dealprice,
+    dealsize, bidorderid, askorderid
+    )
+    values (#{id,jdbcType=INTEGER}, #{dealtime,jdbcType=TIMESTAMP}, #{dealprice,jdbcType=DOUBLE},
+    #{dealsize,jdbcType=INTEGER}, #{bidorderid,jdbcType=VARCHAR}, #{askorderid,jdbcType=VARCHAR}
+    )
   </insert>
   <insert id="insertSelective" parameterType="com.citi.ordermatching.domain.DealRecord" >
     insert into dealrecord
@@ -83,7 +84,7 @@
         #{id,jdbcType=INTEGER},
       </if>
       <if test="dealtime != null" >
-        #{dealtime,jdbcType=DATE},
+        #{dealtime,jdbcType=TIMESTAMP},
       </if>
       <if test="dealprice != null" >
         #{dealprice,jdbcType=DOUBLE},
@@ -103,7 +104,7 @@
     update dealrecord
     <set >
       <if test="dealtime != null" >
-        dealtime = #{dealtime,jdbcType=DATE},
+        dealtime = #{dealtime,jdbcType=TIMESTAMP},
       </if>
       <if test="dealprice != null" >
         dealprice = #{dealprice,jdbcType=DOUBLE},
@@ -122,7 +123,7 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="com.citi.ordermatching.domain.DealRecord" >
     update dealrecord
-    set dealtime = #{dealtime,jdbcType=DATE},
+    set dealtime = #{dealtime,jdbcType=TIMESTAMP},
       dealprice = #{dealprice,jdbcType=DOUBLE},
       dealsize = #{dealsize,jdbcType=INTEGER},
       bidorderid = #{bidorderid,jdbcType=VARCHAR},
