@@ -3,6 +3,7 @@ package com.citi.ordermatching.service;
 import com.citi.ordermatching.domain.History;
 import com.citi.ordermatching.domain.Orderbook;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -19,9 +20,11 @@ public interface OrderbookService {
 
     public void processMatching(History history);
 
-    public boolean processMKT(History history);
+    public void processMKT(History history);
 
     public void processLMT(History history);
+
+    public void processSTP(History history);
 
     Orderbook findById(int orderId);
 

@@ -69,8 +69,10 @@ public class OrderbookController {
         }else if(strategy.equals(Strategy.LMT.toString())){
             history.setPrice(price);
             orderbookService.processLMT(history);
-        }else {
-
+        }else if(strategy.equals(Strategy.STP.toString())){
+            //if BID, price > bestASK; if ASK, price < beskBID
+            history.setPrice(price);
+            orderbookService.processSTP(history);
         }
 
 

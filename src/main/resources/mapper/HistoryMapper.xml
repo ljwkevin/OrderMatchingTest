@@ -33,6 +33,19 @@
     where orderid = #{orderid,jdbcType=VARCHAR}
   </select>
 
+    <select id="selectBitSTPWaitingByPriceAscByTimeAsc" resultMap="BaseResultMap" parameterType="java.lang.String" >
+        select
+        <include refid="Base_Column_List" />
+        from history
+        where symbol = #{symbol,jdbcType=VARCHAR} and status = "WAITING" and type = "BID" and strategy = "STP" order by price asc
+    </select>
+
+    <select id="selectAskSTPWaitingByPriceDescByTimeAsc" resultMap="BaseResultMap" parameterType="java.lang.String" >
+        select
+        <include refid="Base_Column_List" />
+        from history
+        where symbol = #{symbol,jdbcType=VARCHAR} and status = "WAITING" and type = "ASK" and strategy = "STP" order by price desc
+    </select>
 
 
   <select id="findAllHistory" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
@@ -188,5 +201,43 @@
       duration = #{duration,jdbcType=INTEGER}
       orderid = #{orderid, jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
+  </update>
+
+
+  <update id="updateByOrderidSelective" parameterType="com.citi.ordermatching.domain.History" >
+    update history
+    <set >
+      <if test="committime != null" >
+        committime = #{committime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="traderid != null" >
+        traderid = #{traderid,jdbcType=INTEGER},
+      </if>
+      <if test="symbol != null" >
+        symbol = #{symbol,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        type = #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="size != null" >
+        size = #{size,jdbcType=INTEGER},
+      </if>
+      <if test="price != null" >
+        price = #{price,jdbcType=DOUBLE},
+      </if>
+      <if test="strategy != null" >
+        strategy = #{strategy,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="fok != null" >
+        fok = #{fok,jdbcType=VARCHAR},
+      </if>
+      <if test="duration != null" >
+        duration = #{duration,jdbcType=INTEGER},
+      </if>
+    </set>
+    where orderid = #{orderid,jdbcType=VARCHAR}
   </update>
 </mapper>

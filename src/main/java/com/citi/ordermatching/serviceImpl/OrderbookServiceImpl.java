@@ -11,10 +11,11 @@ import com.citi.ordermatching.domain.DealRecord;
 import com.citi.ordermatching.domain.Orderbook;
 import com.citi.ordermatching.service.OrderbookService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
+import java.lang.reflect.Array;
+import java.util.*;
 
 /**
  * Created by Dell on 2018/8/12.
@@ -98,13 +99,20 @@ public class OrderbookServiceImpl implements OrderbookService {
      * @return
      */
     @Override
-    public boolean processMKT(History history){
+    public void processMKT(History history){
+        List<Orderbook> bidList=findBidBySymbol(history.getSymbol());
+        List<Orderbook> askList=findAskBySymbol(history.getSymbol());
+        historyMapper.insertSelective(history);
+        processMKT(history, bidList, askList);
+    }
+
+
+    public void processMKT(History history, List<Orderbook> bidList, List<Orderbook>askList){
         Date dealTime = history.getCommittime();
         double dealPrice;
         int dealSize;
         if(history.getType().equals(OrderType.ASK.toString())){
             //
-            List<Orderbook> bidList=findBidBySymbol(history.getSymbol());
             Orderbook bestBid = bidList.get(0);
             if(bestBid.getSize() == history.getSize()){
                 dealPrice = bestBid.getPrice();
@@ -159,7 +167,6 @@ public class OrderbookServiceImpl implements OrderbookService {
             }
         }else if(history.getType().equals(OrderType.BID.toString())){
             //
-            List<Orderbook> askList=findAskBySymbol(history.getSymbol());
             Orderbook bestAsk = askList.get(0);
             if(bestAsk.getSize() == history.getSize()){
                 dealPrice = bestAsk.getPrice();
@@ -215,8 +222,10 @@ public class OrderbookServiceImpl implements OrderbookService {
                 orderbookMapper.updateByPrimaryKey(askList.get(0));
             }
         }
-        historyMapper.insertSelective(history);
-        return true;
+        historyMapper.updateByOrderidSelective(history);
+
+        //Orderbook发生变化，触发程序检查所有stop order
+        processSTP(history.getSymbol());
     }
 
     /**
@@ -262,6 +271,9 @@ public class OrderbookServiceImpl implements OrderbookService {
                     generateDealMessage(dealTime, dealPrice, dealSize, bestBid.getOrderid(), orderbook.getOrderid());
                     bestBid.setStatus(OrderStatus.FINISHED.toString());
                     orderbook.setStatus(OrderStatus.FINISHED.toString());
+/*                    //---------
+                    history.setStatus(OrderStatus.FINISHED.toString());
+                    //---------*/
                     bidList.get(0).setSize(bidList.get(0).getSize() - dealSize);
                     askList.get(0).setSize(0);
                     askList.get(0).setStatus(OrderStatus.FINISHED.toString());
@@ -423,6 +435,35 @@ public class OrderbookServiceImpl implements OrderbookService {
         }
         history.setStatus(OrderStatus.FINISHED.toString());
         historyMapper.insertSelective(history);
+
+        //Orderbook发生变化，触发程序检查所有stop order
+        processSTP(history.getSymbol());
+    }
+
+    @Override
+    public void processSTP(History history) {
+        historyMapper.insertSelective(history);
+    }
+
+    public void processSTP(String symbol){
+        ArrayList<History> bitHistories = historyMapper.selectBitSTPWaitingByPriceAscByTimeAsc(symbol);
+        ArrayList<History> askHistories = historyMapper.selectAskSTPWaitingByPriceDescByTimeAsc(symbol);
+        List<Orderbook> askList=findAskBySymbol(symbol);
+        List<Orderbook> bidList=findBidBySymbol(symbol);
+        for(History history : bitHistories){
+            double ask=askList.get(0).getPrice();
+            double price = history.getPrice();
+            if(ask >= price){
+                processMKT(history, bidList, askList);
+            }
+        }
+        for(History history : askHistories){
+            double bit=bidList.get(0).getPrice();
+            double price = history.getPrice();
+            if(bit <= price){
+                processMKT(history, bidList, askList);
+            }
+        }
     }
 
     /**
@@ -447,6 +488,9 @@ public class OrderbookServiceImpl implements OrderbookService {
         if(j > 0 && j > 0){
              match(orderbook.getSymbol());
         }
+
+        //Orderbook发生变化，触发程序检查所有stop order
+        processSTP(history.getSymbol());
     }
 
 
@@ -497,10 +541,33 @@ public class OrderbookServiceImpl implements OrderbookService {
             orderbookMapper.updateByPrimaryKeySelective(bidList.get(0));
             orderbookMapper.updateByPrimaryKeySelective(askList.get(0));
 
-            historyMapper.updateByPrimaryKeySelective(bidHistory);
-            historyMapper.updateByPrimaryKeySelective(askHistory);
+            historyMapper.updateByOrderidSelective(bidHistory);
+            historyMapper.updateByOrderidSelective(askHistory);
             generateDealMessage(new Date(), bidList.get(0).getPrice(), dealSize, bidList.get(0).getOrderid(), askList.get(0).getOrderid());
         }else{
         }
+    }
+
+    public Map<String, Double> getTheBestPrices(String symbol){
+        Map<String, Double> bestPrice = new HashMap();
+        List<Orderbook> bidList=findBidBySymbol(symbol);
+        List<Orderbook> askList=findAskBySymbol(symbol);
+        double bid=bidList.get(0).getPrice();
+        double ask=askList.get(0).getPrice();
+        bestPrice.put("bestBid", bid);
+        bestPrice.put("bestAsk", ask);
+        return bestPrice;
+    }
+
+    public boolean isTheBestPriceChanged(Orderbook orderbook){
+        String symbol = orderbook.getSymbol();
+        Map<String, Double> beforeBestPrice = getTheBestPrices(symbol);
+        orderbookMapper.insertSelective(orderbook);
+        Map<String, Double> afterBestPrice = getTheBestPrices(symbol);
+        if(beforeBestPrice.get("bestBid")-afterBestPrice.get("bestBid")<0.000001 ||
+        beforeBestPrice.get("bestAsk")-afterBestPrice.get("bestAsk")<0.000001){
+            return false;
+        }
+        return true;
     }
 }
