@@ -38,15 +38,16 @@ public class HistoryServiceImpl implements HistoryService {
 
 
         List<History> historyList=historyMapper.findAllHistory();
-        List<DealRecord> executionList=new ArrayList<>();
-        List<Orderbook>  ordersList=new ArrayList<>();
-
-        List<Execution> finalExecutionList=new ArrayList<>();
 
         List<RecordOrder> recordOrderList=new ArrayList<>();
-
+        List<Orderbook>  ordersList=new ArrayList<>();
+        List<Execution> finishedList=new ArrayList<>();
 
         for(History history:historyList){
+
+            List<DealRecord> executionList=new ArrayList<>();
+
+            List<Execution> finalExecutionList=new ArrayList<>();
 
             RecordOrder recordOrder=new RecordOrder();
 
@@ -62,10 +63,12 @@ public class HistoryServiceImpl implements HistoryService {
 
                         Execution execution=new Execution();
                         execution.setDealtime(dealRecord.getDealtime());
-                        execution.setStrategy("BID");
+                        execution.setType("BID");
+                        execution.setStrategy(history.getStrategy());
                         execution.setSize(dealRecord.getDealsize());
                         execution.setSymbol(history.getSymbol());
                         finalExecutionList.add(execution);
+                        finishedList.add(execution);
 
                     }
 
@@ -81,10 +84,12 @@ public class HistoryServiceImpl implements HistoryService {
 
                         Execution execution=new Execution();
                         execution.setDealtime(dealRecord.getDealtime());
-                        execution.setStrategy("ASK");
+                        execution.setStrategy(history.getStrategy());
+                        execution.setType("ASK");
                         execution.setSize(dealRecord.getDealsize());
                         execution.setSymbol(history.getSymbol());
                         finalExecutionList.add(execution);
+                        finishedList.add(execution);
 
                     }
 
@@ -116,8 +121,8 @@ public class HistoryServiceImpl implements HistoryService {
 
 
         Map map=new HashMap();
-        map.put("executionList",finalExecutionList);
-        map.put("ordersList",ordersList);
+        map.put("executionList",finishedList);
+       map.put("ordersList",ordersList);
         map.put("historyList",recordOrderList);
 
         String jsonResult= JSONObject.toJSON(map).toString();
