@@ -1,10 +1,8 @@
 package com.citi.ordermatching.controller;
 
-import com.citi.ordermatching.domain.DealRecord;
 import com.citi.ordermatching.domain.History;
 import com.citi.ordermatching.domain.Orderbook;
 import com.citi.ordermatching.enums.OrderStatus;
-import com.citi.ordermatching.enums.OrderType;
 import com.citi.ordermatching.enums.Strategy;
 import com.citi.ordermatching.service.OrderbookService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,8 +75,8 @@ public class OrderbookController {
             //if BID, price < bestASK; if ASK, price > bestBID
             history.setPrice(price);
             orderbookService.processMIT(history);
+        }else {
+
         }
-
-
     }
 }

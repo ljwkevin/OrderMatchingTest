@@ -24,13 +24,8 @@ public class HistoryController {
     @Autowired
     private HistoryService historyService;
 
-
-
-
-
     @RequestMapping("findAllHistory")
     public String findAllHistory(@PathParam("userid") int userid){
-
         String resultJSON= historyService.findAllHistory(userid);
         return resultJSON;
     }
@@ -40,6 +35,4 @@ public class HistoryController {
         History history = historyService.findById(id);
         return historyService.cancelOrder(history);
     }
-
-
 }

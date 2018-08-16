@@ -35,8 +35,6 @@ public class HistoryServiceImpl implements HistoryService {
     @Override
     public String findAllHistory(int userid) {
 
-
-
         List<History> historyList=historyMapper.findAllHistory(userid);
 
         List<RecordOrder> recordOrderList=new ArrayList<>();
@@ -98,8 +96,6 @@ public class HistoryServiceImpl implements HistoryService {
                // executionList.addAll(dealRecords);
             }
 
-
-
             if(orderbook!=null){
                 if(orderbook.getStatus().equals(OrderStatus.WAITING.toString())){
                     recordOrder.setOrderbook(orderbook);
@@ -116,12 +112,9 @@ public class HistoryServiceImpl implements HistoryService {
 
         }
 
-
-
-
         Map map=new HashMap();
         map.put("executionList",finishedList);
-       map.put("ordersList",ordersList);
+        map.put("ordersList",ordersList);
         map.put("historyList",recordOrderList);
 
         String jsonResult= JSONObject.toJSON(map).toString();

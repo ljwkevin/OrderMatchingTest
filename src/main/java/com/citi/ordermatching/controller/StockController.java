@@ -40,8 +40,6 @@ public class StockController {
     @ResponseBody
     public String findAllStocks(){
 
-
-
         List<Stock> result=new ArrayList<>();
 
         List<Stock> stocks= stockService.findAllStocks();
