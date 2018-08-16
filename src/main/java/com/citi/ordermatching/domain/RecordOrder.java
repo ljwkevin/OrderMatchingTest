@@ -8,7 +8,7 @@ import java.util.List;
 public class RecordOrder
 {
     private History history;
-    private List<DealRecord> dealRecordList;
+    private List<Execution> executionList;
     private Orderbook orderbook;
 
     public History getHistory() {
@@ -19,12 +19,12 @@ public class RecordOrder
         this.history = history;
     }
 
-    public List<DealRecord> getDealRecordList() {
-        return dealRecordList;
+    public List<Execution> getExecutionList() {
+        return executionList;
     }
 
-    public void setDealRecordList(List<DealRecord> dealRecordList) {
-        this.dealRecordList = dealRecordList;
+    public void setExecutionList(List<Execution> executionList) {
+        this.executionList = executionList;
     }
 
     public Orderbook getOrderbook() {
