@@ -31,4 +31,5 @@ public interface OrderbookService {
 
     void cancelOrder(Orderbook orderbook);
 
+    List<Orderbook> findAllOrders();
 }

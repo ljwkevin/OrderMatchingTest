@@ -66,6 +66,11 @@ public class OrderbookServiceImpl implements OrderbookService {
         orderbookMapper.updateByPrimaryKey(orderbook);
     }
 
+    @Override
+    public List<Orderbook> findAllOrders() {
+        return orderbookMapper.findAllOrders();
+    }
+
     public void generateDealMessage(Date dealTime, double dealPrice, int dealSize, String bidOrderId, String askOrderId){
         DealRecord dr = new DealRecord();
         //update the database Table "dealrecord"

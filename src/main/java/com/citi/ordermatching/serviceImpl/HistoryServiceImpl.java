@@ -144,8 +144,10 @@ public class HistoryServiceImpl implements HistoryService {
     public boolean cancelOrder(History history) {
         history.setStatus(OrderStatus.CANCELLED.toString());
         Orderbook orderbook = orderbookMapper.selectByOrderid(history.getOrderid());
-        orderbook.setStatus(OrderStatus.CANCELLED.toString());
-        orderbookMapper.updateByPrimaryKeySelective(orderbook);
+        if(orderbook != null){
+            orderbook.setStatus(OrderStatus.CANCELLED.toString());
+            orderbookMapper.updateByPrimaryKeySelective(orderbook);
+        }
         return historyMapper.updateByOrderidSelective(history)>0 ? true : false;
     }
 }
