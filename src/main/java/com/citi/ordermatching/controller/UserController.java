@@ -50,7 +50,7 @@ public class UserController {
             String jsonResult= JSON.toJSONString(map);
             return jsonResult;
         }else{
-            return null;
+            return "false";
         }
 
     }
