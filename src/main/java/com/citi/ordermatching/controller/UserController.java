@@ -50,7 +50,10 @@ public class UserController {
             String jsonResult= JSON.toJSONString(map);
             return jsonResult;
         }else{
-            return "false";
+            Map map=new HashMap();
+            map.put("role",null);
+            String jsonResult=JSON.toJSONString(map);
+            return jsonResult;
         }
 
     }
