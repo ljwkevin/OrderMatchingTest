@@ -33,11 +33,11 @@ public class HistoryServiceImpl implements HistoryService {
     private OrderbookMapper orderbookMapper;
 
     @Override
-    public String findAllHistory() {
+    public String findAllHistory(int userid) {
 
 
 
-        List<History> historyList=historyMapper.findAllHistory();
+        List<History> historyList=historyMapper.findAllHistory(userid);
 
         List<RecordOrder> recordOrderList=new ArrayList<>();
         List<Orderbook>  ordersList=new ArrayList<>();
@@ -144,6 +144,9 @@ public class HistoryServiceImpl implements HistoryService {
     @Override
     public boolean cancelOrder(History history) {
         history.setStatus(OrderStatus.CANCELLED.toString());
+        Orderbook orderbook = orderbookMapper.selectByOrderid(history.getOrderid());
+        orderbook.setStatus(OrderStatus.CANCELLED.toString());
+        orderbookMapper.updateByPrimaryKeySelective(orderbook);
         return historyMapper.updateByOrderidSelective(history)>0 ? true : false;
     }
 }

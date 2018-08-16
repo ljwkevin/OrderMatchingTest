@@ -64,7 +64,7 @@
     select
     <include refid="Base_Column_List" />
     from history
-
+    where traderid = #{userid,jdbcType=INTEGER}
   </select>
 
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >

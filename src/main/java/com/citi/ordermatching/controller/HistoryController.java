@@ -29,9 +29,9 @@ public class HistoryController {
 
 
     @RequestMapping("findAllHistory")
-    public String findAllHistory(){
+    public String findAllHistory(@PathParam("userid") int userid){
 
-        String resultJSON= historyService.findAllHistory();
+        String resultJSON= historyService.findAllHistory(userid);
         return resultJSON;
     }
 

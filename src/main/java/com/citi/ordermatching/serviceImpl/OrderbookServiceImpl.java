@@ -54,21 +54,6 @@ public class OrderbookServiceImpl implements OrderbookService {
         return false;
     }
 
-    /**
-     * @param orderbook
-     */
-    @Override
-    public void processOrder(Orderbook orderbook){
-/*        if(orderbook.getStratesgy().equals(Strategy.Matching)){
-
-        }else if(orderbook.getStrategy().equals(Strategy.MKT.toString())){
-            processMKT(orderbook);
-        }else if(orderbook.getStrategy().equals(Strategy.LMT)){
-            processLMT(orderbook);
-        }else {
-
-        }*/
-    }
 
     @Override
     public Orderbook findById(int orderId) {
@@ -106,6 +91,12 @@ public class OrderbookServiceImpl implements OrderbookService {
         processMKT(history, bidList, askList);
     }
 
+    public void setHistoryFinishedFromOrderbook(Orderbook orderbook){
+        History history = historyMapper.selectByOrderid(orderbook.getOrderid());
+        history.setStatus(OrderStatus.FINISHED.toString());
+        historyMapper.updateByOrderidSelective(history);
+    }
+
 
     public void processMKT(History history, List<Orderbook> bidList, List<Orderbook>askList){
         Date dealTime = history.getCommittime();
@@ -122,6 +113,7 @@ public class OrderbookServiceImpl implements OrderbookService {
                 history.setStatus(OrderStatus.FINISHED.toString());
                 generateDealMessage(dealTime, dealPrice, dealSize, bestBid.getOrderid(),history.getOrderid());
                 orderbookMapper.updateByPrimaryKeySelective(bestBid);
+                setHistoryFinishedFromOrderbook(bestBid);
             }
             else if(bestBid.getSize() < history.getSize()){
                 int size = history.getSize();       //每次交易后剩下的数量
@@ -135,6 +127,7 @@ public class OrderbookServiceImpl implements OrderbookService {
                         bidList.get(i).setSize(bidList.get(i).getSize() - dealSize);    //bidList.get(i).getSize()  可用size替代
                         generateDealMessage(dealTime, dealPrice, dealSize, bidList.get(i).getOrderid(), history.getOrderid());
                         orderbookMapper.updateByPrimaryKeySelective(bidList.get(i));
+                        setHistoryFinishedFromOrderbook(bidList.get(i));
                         i++;
                     }else if(size<bidList.get(i).getSize()){
                         dealPrice = bidList.get(i).getPrice();
@@ -154,6 +147,7 @@ public class OrderbookServiceImpl implements OrderbookService {
                         history.setStatus(OrderStatus.FINISHED.toString());
                         generateDealMessage(dealTime, dealPrice, dealSize, bestBid.getOrderid(), history.getOrderid());
                         orderbookMapper.updateByPrimaryKey(bidList.get(i));
+                        setHistoryFinishedFromOrderbook(bidList.get(i));
                         i++;
                     }
                 }
@@ -176,6 +170,7 @@ public class OrderbookServiceImpl implements OrderbookService {
                 history.setStatus(OrderStatus.FINISHED.toString());
                 generateDealMessage(dealTime, dealPrice, dealSize, history.getOrderid(), bestAsk.getOrderid());
                 orderbookMapper.updateByPrimaryKey(askList.get(0));
+                setHistoryFinishedFromOrderbook(bestAsk);
             }
             else if(bestAsk.getSize() < history.getSize()){
                 int size = history.getSize();
@@ -189,6 +184,7 @@ public class OrderbookServiceImpl implements OrderbookService {
                         askList.get(i).setSize(askList.get(i).getSize() - dealSize);
                         generateDealMessage(dealTime, dealPrice, dealSize, history.getOrderid(), askList.get(i).getOrderid());
                         orderbookMapper.updateByPrimaryKey(askList.get(i));
+                        setHistoryFinishedFromOrderbook(askList.get(i));
                         i++;
                     }else if(size<askList.get(i).getSize()){
                         dealPrice = askList.get(i).getPrice();
@@ -208,6 +204,7 @@ public class OrderbookServiceImpl implements OrderbookService {
                         history.setStatus(OrderStatus.FINISHED.toString());
                         generateDealMessage(dealTime, dealPrice, dealSize, history.getOrderid(), bestAsk.getOrderid());
                         orderbookMapper.updateByPrimaryKey(askList.get(i));
+                        setHistoryFinishedFromOrderbook(askList.get(i));
                         i++;
                     }
 
@@ -220,12 +217,14 @@ public class OrderbookServiceImpl implements OrderbookService {
                 history.setStatus(OrderStatus.FINISHED.toString());
                 generateDealMessage(dealTime, dealPrice, dealSize, history.getOrderid(), bestAsk.getOrderid());
                 orderbookMapper.updateByPrimaryKey(askList.get(0));
+                setHistoryFinishedFromOrderbook(askList.get(0));
             }
         }
         historyMapper.updateByOrderidSelective(history);
 
         //Orderbook发生变化，触发程序检查所有stop order
         processSTP(history.getSymbol());
+        processMIT(history.getSymbol());
     }
 
     /**
@@ -438,6 +437,7 @@ public class OrderbookServiceImpl implements OrderbookService {
 
         //Orderbook发生变化，触发程序检查所有stop order
         processSTP(history.getSymbol());
+        processMIT(history.getSymbol());
     }
 
     @Override
@@ -515,8 +515,9 @@ public class OrderbookServiceImpl implements OrderbookService {
              match(orderbook.getSymbol());
         }
 
-        //Orderbook发生变化，触发程序检查所有stop order
+        //Orderbook发生变化，触发程序检查所有STP, MIT
         processSTP(history.getSymbol());
+        processMIT(history.getSymbol());
     }
 
 

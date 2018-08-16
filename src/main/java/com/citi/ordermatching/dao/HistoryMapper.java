@@ -21,7 +21,7 @@ public interface HistoryMapper {
 
     int updateByPrimaryKey(History record);
 
-    List<History> findAllHistory();
+    List<History> findAllHistory(int userid);
 
     History selectByOrderid(String orderid);
 

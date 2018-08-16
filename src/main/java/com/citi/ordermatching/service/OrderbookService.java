@@ -14,9 +14,8 @@ public interface OrderbookService {
     List<Orderbook> findBidBySymbol(String symbol);
     List<Orderbook> findAskBySymbol(String symbol);
     public void addOrderbookItem(Orderbook orderbook);
-    public boolean deleteOrderbookItem(int orderbookid);
 
-    public void processOrder(Orderbook orderbook);
+    public boolean deleteOrderbookItem(int orderbookid);
 
     public void processMatching(History history);
 
