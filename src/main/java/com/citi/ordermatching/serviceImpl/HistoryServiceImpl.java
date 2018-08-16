@@ -54,7 +54,7 @@ public class HistoryServiceImpl implements HistoryService {
             String orderid=history.getOrderid();
             String type=history.getType();
             Orderbook orderbook=orderbookMapper.selectByOrderid(orderid);
-            int id=orderbook.getId();
+           // int id=orderbook.getId();
             if(type.equals("BID")){
                 List<DealRecord> dealRecords=dealRecordMapper.findAllDealRecordByBidId(orderid);
                 recordOrder.setDealRecordList(dealRecords);
@@ -65,13 +65,18 @@ public class HistoryServiceImpl implements HistoryService {
                 recordOrder.setDealRecordList(dealRecords);
                 executionList.addAll(dealRecords);
             }
-            if(orderbook.getStatus().equals(OrderStatus.CANCELLED.toString())||
-                    orderbook.getStatus().equals(OrderStatus.WAITING.toString())){
-                recordOrder.setOrderbook(orderbook);
-                ordersList.add(orderbook);
-            }else{
+            if(orderbook!=null){
+                if(orderbook.getStatus().equals(OrderStatus.CANCELLED.toString())||
+                        orderbook.getStatus().equals(OrderStatus.WAITING.toString())){
+                    recordOrder.setOrderbook(orderbook);
+                    ordersList.add(orderbook);
+                }else{
+                    recordOrder.setOrderbook(null);
+                }
+            }else {
                 recordOrder.setOrderbook(null);
             }
+
 
             recordOrderList.add(recordOrder);
 
