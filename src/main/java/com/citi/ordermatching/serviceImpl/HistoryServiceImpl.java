@@ -5,10 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.citi.ordermatching.dao.DealRecordMapper;
 import com.citi.ordermatching.dao.HistoryMapper;
 import com.citi.ordermatching.dao.OrderbookMapper;
-import com.citi.ordermatching.domain.DealRecord;
-import com.citi.ordermatching.domain.History;
-import com.citi.ordermatching.domain.Orderbook;
-import com.citi.ordermatching.domain.RecordOrder;
+import com.citi.ordermatching.domain.*;
 import com.citi.ordermatching.enums.OrderStatus;
 import com.citi.ordermatching.service.HistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,10 +41,13 @@ public class HistoryServiceImpl implements HistoryService {
         List<DealRecord> executionList=new ArrayList<>();
         List<Orderbook>  ordersList=new ArrayList<>();
 
+        List<Execution> finalExecutionList=new ArrayList<>();
+
         List<RecordOrder> recordOrderList=new ArrayList<>();
 
 
         for(History history:historyList){
+
             RecordOrder recordOrder=new RecordOrder();
 
             recordOrder.setHistory(history);
@@ -57,14 +57,44 @@ public class HistoryServiceImpl implements HistoryService {
            // int id=orderbook.getId();
             if(type.equals("BID")){
                 List<DealRecord> dealRecords=dealRecordMapper.findAllDealRecordByBidId(orderid);
-                recordOrder.setDealRecordList(dealRecords);
+                if(dealRecords!=null){
+                    for(DealRecord dealRecord:dealRecords){
+
+                        Execution execution=new Execution();
+                        execution.setDealtime(dealRecord.getDealtime());
+                        execution.setStrategy("BID");
+                        execution.setSize(dealRecord.getDealsize());
+                        execution.setSymbol(history.getSymbol());
+                        finalExecutionList.add(execution);
+
+                    }
+
+                }
+
+                recordOrder.setExecutionList(finalExecutionList);
                 executionList.addAll(dealRecords);
 
             }else if(type.equals("ASK")){
                 List<DealRecord> dealRecords=dealRecordMapper.findAllDealRecordByAskId(orderid);
-                recordOrder.setDealRecordList(dealRecords);
-                executionList.addAll(dealRecords);
+                if(dealRecords!=null){
+                    for(DealRecord dealRecord:dealRecords){
+
+                        Execution execution=new Execution();
+                        execution.setDealtime(dealRecord.getDealtime());
+                        execution.setStrategy("ASK");
+                        execution.setSize(dealRecord.getDealsize());
+                        execution.setSymbol(history.getSymbol());
+                        finalExecutionList.add(execution);
+
+                    }
+
+                }
+                recordOrder.setExecutionList(finalExecutionList);
+               // executionList.addAll(dealRecords);
             }
+
+
+
             if(orderbook!=null){
                 if(orderbook.getStatus().equals(OrderStatus.CANCELLED.toString())||
                         orderbook.getStatus().equals(OrderStatus.WAITING.toString())){
@@ -82,8 +112,11 @@ public class HistoryServiceImpl implements HistoryService {
 
         }
 
+
+
+
         Map map=new HashMap();
-        map.put("executionList",executionList);
+        map.put("executionList",finalExecutionList);
         map.put("ordersList",ordersList);
         map.put("historyList",recordOrderList);
 
