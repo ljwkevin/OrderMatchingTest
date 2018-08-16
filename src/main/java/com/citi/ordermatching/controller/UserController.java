@@ -86,4 +86,18 @@ public class UserController {
             return "";
         }
     }
+
+    @RequestMapping("/logout")
+    @ResponseBody
+    public String logOut(@RequestParam("username")String username){
+
+        User user=userService.isExist(username);
+        user.setToken("");
+        userService.updateUser(user);
+        Map map=new HashMap();
+        map.put("code",200);
+
+        String json=JSON.toJSONString(map);
+        return json;
+    }
 }
