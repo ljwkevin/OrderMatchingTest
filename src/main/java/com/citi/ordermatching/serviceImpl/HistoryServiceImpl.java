@@ -1,6 +1,7 @@
 package com.citi.ordermatching.serviceImpl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.citi.ordermatching.dao.DealRecordMapper;
 import com.citi.ordermatching.dao.HistoryMapper;
 import com.citi.ordermatching.dao.OrderbookMapper;
@@ -14,7 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Dell on 2018/8/14.
@@ -35,13 +38,19 @@ public class HistoryServiceImpl implements HistoryService {
     @Override
     public String findAllHistory() {
 
+
+
         List<History> historyList=historyMapper.findAllHistory();
+        List<DealRecord> executionList=new ArrayList<>();
+        List<Orderbook>  ordersList=new ArrayList<>();
+
         List<RecordOrder> recordOrderList=new ArrayList<>();
-        RecordOrder recordOrder=new RecordOrder();
+
 
         for(History history:historyList){
-            recordOrder.setHistory(history);
+            RecordOrder recordOrder=new RecordOrder();
 
+            recordOrder.setHistory(history);
             String orderid=history.getOrderid();
             String type=history.getType();
             Orderbook orderbook=orderbookMapper.selectByOrderid(orderid);
@@ -49,14 +58,17 @@ public class HistoryServiceImpl implements HistoryService {
             if(type.equals("BID")){
                 List<DealRecord> dealRecords=dealRecordMapper.findAllDealRecordByBidId(orderid);
                 recordOrder.setDealRecordList(dealRecords);
+                executionList.addAll(dealRecords);
 
             }else if(type.equals("ASK")){
                 List<DealRecord> dealRecords=dealRecordMapper.findAllDealRecordByAskId(orderid);
                 recordOrder.setDealRecordList(dealRecords);
+                executionList.addAll(dealRecords);
             }
             if(orderbook.getStatus().equals(OrderStatus.CANCELLED.toString())||
                     orderbook.getStatus().equals(OrderStatus.WAITING.toString())){
                 recordOrder.setOrderbook(orderbook);
+                ordersList.add(orderbook);
             }else{
                 recordOrder.setOrderbook(null);
             }
@@ -64,7 +76,13 @@ public class HistoryServiceImpl implements HistoryService {
             recordOrderList.add(recordOrder);
 
         }
-        String jsonResult= JSON.toJSONString(recordOrderList);
+
+        Map map=new HashMap();
+        map.put("executionList",executionList);
+        map.put("ordersList",ordersList);
+        map.put("historyList",recordOrderList);
+
+        String jsonResult= JSONObject.toJSON(map).toString();
 
         return jsonResult;
 
