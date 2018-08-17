@@ -67,6 +67,12 @@
     where traderid = #{userid,jdbcType=INTEGER}
   </select>
 
+<!--  <select id="selectByOrderid" resultMap="BaseResultMap" parameterType="java.lang.VARCHAR" >
+    select
+    <include refid="Base_Column_List" />
+    from history
+    where orderid = #{orderid,jdbcType=VARCHAR}
+  </select>-->
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from history
     where id = #{id,jdbcType=INTEGER}

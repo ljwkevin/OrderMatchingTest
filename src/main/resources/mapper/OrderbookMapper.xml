@@ -160,6 +160,43 @@
       </if>
     </trim>
   </insert>
+
+  <update id="updateByOrderidSelective" parameterType="com.citi.ordermatching.domain.Orderbook" >
+    update orderbook
+    <set >
+      <if test="symbol != null" >
+        symbol = #{symbol,jdbcType=VARCHAR},
+      </if>
+      <if test="traderid != null" >
+        traderid = #{traderid,jdbcType=INTEGER},
+      </if>
+      <if test="type != null" >
+        type = #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="size != null" >
+        size = #{size,jdbcType=INTEGER},
+      </if>
+      <if test="price != null" >
+        price = #{price,jdbcType=DOUBLE},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="operatetime != null" >
+        operatetime = #{operatetime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="strategy != null" >
+        strategy = #{strategy,jdbcType=VARCHAR},
+      </if>
+      <if test="fok != null" >
+        FOK = #{fok,jdbcType=VARCHAR},
+      </if>
+      <if test="duration != null" >
+        duration = #{duration,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where orderid = #{orderid,jdbcType=VARCHAR}
+  </update>
   <update id="updateByPrimaryKeySelective" parameterType="com.citi.ordermatching.domain.Orderbook" >
     update orderbook
     <set >

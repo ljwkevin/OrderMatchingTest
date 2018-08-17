@@ -16,4 +16,6 @@ public interface HistoryService {
     public History findById(int id);
 
     public boolean cancelOrder(History history);
+
+    History findByOrderid(String orderid);
 }

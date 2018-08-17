@@ -139,8 +139,13 @@ public class HistoryServiceImpl implements HistoryService {
         Orderbook orderbook = orderbookMapper.selectByOrderid(history.getOrderid());
         if(orderbook != null){
             orderbook.setStatus(OrderStatus.CANCELLED.toString());
-            orderbookMapper.updateByPrimaryKeySelective(orderbook);
+            orderbookMapper.updateByOrderidSelective(orderbook);
         }
         return historyMapper.updateByOrderidSelective(history)>0 ? true : false;
+    }
+
+    @Override
+    public History findByOrderid(String orderid) {
+        return historyMapper.selectByOrderid(orderid);
     }
 }
